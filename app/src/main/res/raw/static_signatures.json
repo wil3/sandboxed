@@ -1,0 +1,182 @@
+[
+    {
+        "name": "Build.BOARD",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.BOOTLOADER",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.BRAND",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.CPU_ABI",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.CPU_ABI2",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.DEVICE",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.DISPLAY",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.FINGERPRINT",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.HARDWARE",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.HOST",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.ID",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    },
+    {
+        "name": "Build.MANUFACTURER",
+        "weight": 1,
+        "handlerClass" : "wkt.sandboxed.detect.StaticVariableRegExDetection",
+        "params" : [
+            {
+                "type": "java.lang.String",
+                "val" : "android.os.Build.BOARD",
+            },
+            {
+                "type": "java.lang.String",
+                "val" : "armeabi",
+            }
+        ]
+    }
+]
