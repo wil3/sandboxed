@@ -12,7 +12,7 @@ import ktwz.sandboxed.model.DetectionMethod;
 import ktwz.sandboxed.model.Param;
 
 /**
- * This will run all sandbox detections
+ * This will scan all sandbox detections
  * Created by wil on 1/28/15.
  */
 public class Detector {
