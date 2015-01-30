@@ -3,28 +3,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     >
 
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
     <TextView
         android:id="@+id/textCall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
-        tools:text="This is a property"/>
+        tools:text="Context.MODE_PRIVATE"/>
 
     <TextView
         android:id="@+id/textPackage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
-        tools:text="This is a property"/>
+        tools:text="android.content"/>
 
     </LinearLayout>
+
+
     <TextView
         android:id="@+id/textValue"
         android:layout_width="wrap_content"

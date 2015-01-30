@@ -68,12 +68,11 @@ public class APICallScanner {
 
                             if (isWrapperType(obj.getClass())) {
 
+                                String fullName = className + "." + fieldName;
                                 String l = className + "." + fieldName + "=" + obj.toString() + "\n";
                                // fis.write(l.getBytes());
 
-                                APICall call = new APICall(getPackageName(className),
-                                        getClassName(className),
-                                        fieldName,
+                                APICall call = new APICall(fullName,
                                         obj.toString());
                                 call.save();
 
@@ -126,15 +125,6 @@ public class APICallScanner {
         return s;
     }
 
-    private String getPackageName(String className){
-        int lastDot = className.lastIndexOf(".");
-        return className.substring(0, lastDot);
-
-    }
-    private String getClassName(String className){
-        int lastDot = className.lastIndexOf(".");
-        return className.substring(lastDot, className.length());
-    }
 
     private Constructor findAvailableConstructor(Constructor[] constructors){
         Constructor constructor = null;

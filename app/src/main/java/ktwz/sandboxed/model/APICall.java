@@ -7,6 +7,7 @@ import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
 import com.activeandroid.query.Select;
 import com.activeandroid.Cache;
+import com.activeandroid.util.SQLiteUtils;
 
 /**
  * Created by wil on 1/30/15.
@@ -14,27 +15,38 @@ import com.activeandroid.Cache;
 @Table(name="APICalls")
 public class APICall extends Model{
 
-    @Column(name="package")
-    public String packageName;
+    //@Column(name="package")
+   // public String packageName;
 
     @Column(name="class")
     public String className;
 
-    @Column(name="access")
-    public String accessName; //could get field or method
+    //@Column(name="access")
+    //public String accessName; //could get field or method
 
-    @Column(name="val")
+    @Column(name="value")
     public String val;
 
     public APICall(){
         super();
     }
-    public APICall(String packageName, String className, String accessName, String val) {
+    public APICall(String className, String val) {
         super();
-        this.packageName = packageName;
+       // this.packageName = packageName;
         this.className = className;
-        this.accessName = accessName;
+       // this.accessName = accessName;
         this.val = val;
+    }
+
+
+    public static String getPackageName(String className){
+        int lastDot = className.lastIndexOf(".");
+        return className.substring(0, lastDot);
+
+    }
+    public static String getSimpleClassName(String className){
+        int lastDot = className.lastIndexOf(".");
+        return className.substring(lastDot + 1, className.length());
     }
 
     // Return cursor for result set for all todo items
@@ -45,6 +57,15 @@ public class APICall extends Model{
                 from(APICall.class).toSql();
         // Execute query on the underlying ActiveAndroid SQLite database
         Cursor resultCursor = Cache.openDatabase().rawQuery(resultRecords, null);
+        return resultCursor;
+    }
+    public static Cursor fetchResultCursor(String filter) {
+        String tableName = Cache.getTableInfo(APICall.class).getTableName();
+        //TODO make sure activeandroid doesnt have support for like or create pull request if it doesnt exist
+        // Execute query on the underlying ActiveAndroid SQLite database
+        String query = "SELECT " + tableName + ".*, " + tableName + ".Id as _id  FROM " + tableName + " WHERE class LIKE '%" + filter + "%'";
+
+        Cursor resultCursor = Cache.openDatabase().rawQuery(query, null);
         return resultCursor;
     }
 

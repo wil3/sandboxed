@@ -1,9 +1,19 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="ktwz.sandboxed.APICallsFragment">
+    android:layout_height="match_parent" tools:context="ktwz.sandboxed.APICallsFragment"
+
+    android:orientation="vertical"
+    >
+    <!-- Editext for Search -->
+    <EditText android:id="@+id/input_search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Filter results"
+        />
     <ListView
         android:id="@+id/list_apicalls"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="fill_parent"
+
         />
-</FrameLayout>
+</LinearLayout>

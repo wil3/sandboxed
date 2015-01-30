@@ -28,7 +28,7 @@ public class MainActivity extends RoboActivity {
         }
 
         if (APICall.isEmpty()){
-            Log.d(TAG,"Database is emtpy, needs to be initiallized");
+            Log.d(TAG,"Database is empty, needs to be initialized");
             buildDatabase();
         }
 
