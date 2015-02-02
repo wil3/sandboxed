@@ -15,6 +15,7 @@ import ktwz.sandboxed.model.Param;
  * This will scan all sandbox detections
  * Created by wil on 1/28/15.
  */
+@Deprecated
 public class Detector {
     private static final String TAG = Detector.class.getName();
 

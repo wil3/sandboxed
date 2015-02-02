@@ -15,6 +15,7 @@ import ktwz.sandboxed.model.DetectionMethod;
 /**
  * Created by wil on 1/25/15.
  */
+@Deprecated
 public class DataProcessor {
 
     public List<DetectionMethod> process(Context context, int resource){
@@ -33,8 +34,6 @@ public class DataProcessor {
                     }
                 })
                 .deserialize(data, ArrayList.class);
-
-
 
     }
 }

@@ -1,10 +1,12 @@
 package ktwz.sandboxed;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,17 +16,21 @@ import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import ktwz.sandboxed.discover.DatabaseBuilderTask;
 import ktwz.sandboxed.model.APICall;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
 
-public class APICallsFragment extends RoboFragment {
+public class APICallsFragment extends RoboFragment implements DatabaseBuilderTask.DatabaseBuildTaskCallback{
 
+    private static final String TAG = APICallsFragment.class.getName();
 
     @InjectView(R.id.input_search)  private EditText filterText;
     @InjectView(R.id.list_apicalls) private ListView apiList;
 
+    private APICallCursorAdapter adapter;
+    private ProgressDialog ringProgressDialog;
     public APICallsFragment() {
         // Required empty public constructor
     }
@@ -47,8 +53,16 @@ public class APICallsFragment extends RoboFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+
+        if (APICall.isEmpty()){
+            Log.d(TAG, "Database is empty, needs to be initialized");
+            launchRingDialog();
+            DatabaseBuilderTask task = new DatabaseBuilderTask(getActivity().getApplicationContext(), this);
+            task.execute();
+        }
+
         Cursor c = APICall.fetchResultCursor();
-        final APICallCursorAdapter adapter = new APICallCursorAdapter(getActivity().getApplicationContext(),c);
+        adapter = new APICallCursorAdapter(getActivity().getApplicationContext(),c);
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
             @Override
             public Cursor runQuery(CharSequence constraint) {
@@ -68,19 +82,37 @@ public class APICallsFragment extends RoboFragment {
 
             @Override
             public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                                          int arg3) {
-                // TODO Auto-generated method stub
-
-            }
+                                          int arg3) { }
 
             @Override
-            public void afterTextChanged(Editable arg0) {
-                // TODO Auto-generated method stub
-            }
+            public void afterTextChanged(Editable arg0) { }
         });
     }
 
+    @Override
+    public void onDatabaseBuildSuccess() {
+        if (ringProgressDialog != null) {
+            ringProgressDialog.dismiss();
+        }
+        Cursor cursor = APICall.fetchResultCursor();
+        adapter.changeCursor(cursor);
+        adapter.notifyDataSetChanged();
 
+    }
+
+    @Override
+    public void onDatabaseBuildFailure() {
+        if (ringProgressDialog != null) {
+            ringProgressDialog.dismiss();
+        }
+    }
+
+
+
+    public void launchRingDialog() {
+        ringProgressDialog = ProgressDialog.show(getActivity(), getString(R.string.message_database_title), getString(R.string.message_database_message), true);
+        ringProgressDialog.setCancelable(false);
+    }
 
     class APICallCursorAdapter extends CursorAdapter {
         public APICallCursorAdapter(Context context, Cursor cursor) {

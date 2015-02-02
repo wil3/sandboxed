@@ -10,7 +10,9 @@ import com.activeandroid.Cache;
 import com.activeandroid.util.SQLiteUtils;
 
 /**
- * Defines a single API call
+ * Defines a single API call.
+ *
+ * Additionally, uses ActiveAndroid to model a SQL entry
  *
  * Created by wil on 1/30/15.
  */

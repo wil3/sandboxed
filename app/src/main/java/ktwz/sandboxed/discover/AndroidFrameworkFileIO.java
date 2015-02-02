@@ -19,16 +19,22 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
+ * Handles the file IO for obtaining the class list for available API.
+ *
+ * Android has the framework.jar which is the client interface to access Android through the API.
+ * We extract the preloaded_classes file which is a text file including every class available
+ * to the client. This allows us to automatically scan the API for a given device.
+ *
  * Created by wil on 1/29/15.
  */
-public class AndroidFrameworkReader {
+public class AndroidFrameworkFileIO {
 
-    private static final String TAG = AndroidFrameworkReader.class.getName();
+    private static final String TAG = AndroidFrameworkFileIO.class.getName();
 
     private List<String> preloadedClasses = new ArrayList<String>();
     private Context context;
 
-    public AndroidFrameworkReader(Context context){
+    public AndroidFrameworkFileIO(Context context){
         this.context = context;
     }
 
@@ -69,6 +75,11 @@ public class AndroidFrameworkReader {
 
     }
 
+    /**
+     * Given the location to the preloaded class file, load into a List
+     * @param preloadedClassFile
+     * @return
+     */
     public List<String> loadPreloadedClassList(String preloadedClassFile){
         FileInputStream fin = null;
         try {

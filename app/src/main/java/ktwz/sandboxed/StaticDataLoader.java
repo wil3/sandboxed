@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 /**
  * Created by wil on 1/25/15.
  */
+@Deprecated
 public class StaticDataLoader {
 
 

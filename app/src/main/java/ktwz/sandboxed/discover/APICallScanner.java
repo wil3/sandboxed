@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +24,8 @@ import ktwz.sandboxed.model.APICall;
  *
  * Created by wil on 1/29/15.
  */
+
+//TODO not everything has a constructor like Sensor.class, how to get instance of this?
 public class APICallScanner {
     private static final String TAG = APICallScanner.class.getName();
   //  private final Logger log = Logger.getLogger(Discover.class);
@@ -36,56 +39,58 @@ public class APICallScanner {
 
     public void scan(){
 
-        //FileOutputStream fis = null;
+        for (String className : classList) { //These are the full class names
+       // for (int i=0; i<5; i++){
+       //     String className = classList.get(i);
 
-       // try {
-           // context.deleteFile("detection.out");
-           // fis = context.openFileOutput("detection.out", Context.MODE_PRIVATE);
+            try {
+                Class clazz = Class.forName(className);
 
-            for (String className : classList) { //These are the full class names
-            //for (int i=0; i<10; i++){
-             //   String className = classList.get(i);
-
-                try {
-                    Class clazz = Class.forName(className);
-
-                    processClassMembers(clazz, className);
-                    processMethods(clazz);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-
+                processClassMembers(clazz, className);
+              //  processMethods(clazz);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
-/*
-        } catch (IOException e){
 
-            e.printStackTrace();
         }
-
-        finally {
-            if (fis != null){
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }*/
     }
 
     private void processMethods(Class clazz){
-        Constructor constructor = getInstance(clazz);
-        if (constructor == null) {
+       // Constructor constructor = getInstance(clazz);
+        Object instance = getInstance(clazz);
+        if (instance == null) {
             Log.e(TAG, "Can not initialize constructor for class " + clazz.getName());
             return;
         }
 
+        Method[] methods = clazz.getMethods(); //all public methods
+        for (int i=0; i<methods.length; i++){
+            String methodName = methods[i].getName();
+            Class returnType = methods[i].getReturnType();
+            Class [] parameterTypes = methods[i].getParameterTypes();
+
+            try {
+                //Its a primitive type and no parameters
+                if (isWrapperType(returnType) && parameterTypes.length == 0){
+                    Object o = methods[i].invoke(instance);
+                    String value = o.toString();
+
+                } else {
+                    //recurse
+                }
+            } catch (IllegalAccessException e) {
+                Log.e(TAG, e.getMessage());
+            } catch (InvocationTargetException e) {
+                Log.e(TAG, e.getMessage());
+            }
+        }
     }
 
-    private Constructor getInstance(Class clazz)  {
+    private Object getInstance(Class clazz)  {
+
         Constructor[] c = clazz.getDeclaredConstructors();
         Constructor constructor = null;
-
+        Object newInstance = null;
         try {
             for (int i = 0; i < c.length; i++) {
                 Class[] parameterTypes = c[i].getParameterTypes();
@@ -93,7 +98,7 @@ public class APICallScanner {
                 if (parameterTypes.length == 0) { //Empty constructor, easy just use this
                     constructor = c[i];
 
-                    c[i].newInstance();
+                    newInstance = c[i].newInstance();
                     break;
                 } else {
                     //Try some tricky stuff, if context we can do that, else fuzz?
@@ -107,7 +112,7 @@ public class APICallScanner {
         } catch (InvocationTargetException e){
             Log.e(TAG, e.getMessage());
         }
-        return constructor;
+        return newInstance;
     }
 
     private void processClassMembers(Class clazz, String className){
@@ -122,9 +127,12 @@ public class APICallScanner {
 
 
         for (int j=0; j<fields.length; j++){
+            //TODO should we do anything about illegal accessed properties?
+            String fieldName = fields[j].getName();
+            String fullName = className + "." + fieldName;
+
             try {
-                //TODO should we do anything about illegal accessed properties?
-                String fieldName = fields[j].getName();
+
                 Field field = clazz.getDeclaredField(fieldName);
                 if (field == null) {
                     continue;
@@ -134,7 +142,6 @@ public class APICallScanner {
 
                 if (isWrapperType(obj.getClass())) {
 
-                    String fullName = className + "." + fieldName;
                     String l = className + "." + fieldName + "=" + obj.toString() + "\n";
                     // fis.write(l.getBytes());
 
@@ -148,12 +155,12 @@ public class APICallScanner {
 
 
             } catch (RuntimeException e){
-                String message = (e.getMessage() == null)? "Error for " + className : e.getMessage();
+                String message = (e.getMessage() == null)? "Error for " + fullName : e.getMessage();
                 Log.e(TAG,message);
             } catch (IllegalAccessException e) {
-                Log.e(TAG,  e.getMessage() );
+                Log.e(TAG, fullName + ":" + e.getMessage() );
             } catch (NoSuchFieldException e) {
-                Log.e(TAG, e.getMessage());
+                Log.e(TAG, fullName + ":" + e.getMessage());
             }
         }
 

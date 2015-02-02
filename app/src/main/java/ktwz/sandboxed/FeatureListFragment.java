@@ -19,6 +19,7 @@ import roboguice.inject.InjectView;
 import ktwz.sandboxed.model.DetectionMethod;
 import ktwz.sandboxed.model.Param;
 
+@Deprecated
 public class FeatureListFragment extends RoboFragment {
 
     private static final String TAG = FeatureListFragment.class.getName();

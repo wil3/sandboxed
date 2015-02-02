@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
  *
  * Created by wil on 1/25/15.
  */
+@Deprecated
 public class StaticVariableRegExDetection implements SandboxDetection {
     private static final String TAG = StaticVariableRegExDetection.class.getName();
 

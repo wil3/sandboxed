@@ -14,10 +14,9 @@ import java.io.IOException;
 import java.util.List;
 
 import ktwz.sandboxed.discover.APICallScanner;
-import ktwz.sandboxed.discover.AndroidFrameworkReader;
+import ktwz.sandboxed.discover.AndroidFrameworkFileIO;
 import ktwz.sandboxed.model.APICall;
 import roboguice.activity.RoboActivity;
-import roboguice.inject.ContentView;
 
 
 //@ContentView(R.layout.activity_main)
@@ -36,33 +35,8 @@ public class MainActivity extends RoboActivity {
                     .commit();
         }
 
-        if (APICall.isEmpty()){
-            Log.d(TAG,"Database is empty, needs to be initialized");
-            buildDatabase();
-        }
-
     }
 
-    private void buildDatabase(){
-        AndroidFrameworkReader d = new AndroidFrameworkReader(getApplicationContext());
-
-        String preloadedClassFilename = getString(R.string.filename_preloaded_classes);
-        String frameworkFilename = getString(R.string.filename_android_framework);
-        String frameworkPath = getString(R.string.path_android_framework);
-
-        //TODO optimize, read from file and insert straight to db
-
-        //Copy the framework into our working directory
-        d.copy(frameworkPath, frameworkFilename);
-
-        //Extract the file containing all the classes
-        d.extract(frameworkFilename, preloadedClassFilename);
-
-        List<String> classList = d.loadPreloadedClassList(preloadedClassFilename);
-
-        APICallScanner scanner = new APICallScanner(getApplicationContext(), classList);
-        scanner.scan();
-    }
 
 
     @Override
@@ -79,9 +53,9 @@ public class MainActivity extends RoboActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch(id){
-            case R.id.action_refresh:
-                refreshDatabase();
-                break;
+           // case R.id.action_refresh:
+           //     refreshDatabase();
+           //     break;
             case R.id.action_export:
                 exportDatabase();
                 break;
