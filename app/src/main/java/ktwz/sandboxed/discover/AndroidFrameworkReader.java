@@ -24,9 +24,9 @@ import java.util.zip.ZipInputStream;
 public class AndroidFrameworkReader {
 
     private static final String TAG = AndroidFrameworkReader.class.getName();
-    private static String ROOT_PACKAGE = "android";
+
     private List<String> preloadedClasses = new ArrayList<String>();
-    Context context;
+    private Context context;
 
     public AndroidFrameworkReader(Context context){
         this.context = context;
@@ -37,35 +37,35 @@ public class AndroidFrameworkReader {
         if (new File("framework.zip").exists())
             return;
 
-    File file = new File(source);
+        File file = new File(source);
 
-        InputStream input = null;
-        OutputStream output = null;
-    try {
-        input = new BufferedInputStream(new FileInputStream(file));
-        //output = new BufferedOutputStream(new FileOutputStream("framework.zip"));
-        FileOutputStream fos = context.openFileOutput(target, Context.MODE_PRIVATE);
+            InputStream input = null;
+            OutputStream output = null;
+        try {
+            input = new BufferedInputStream(new FileInputStream(file));
+            //output = new BufferedOutputStream(new FileOutputStream("framework.zip"));
+            FileOutputStream fos = context.openFileOutput(target, Context.MODE_PRIVATE);
 
-        IOUtils.copy(input, fos);
+            IOUtils.copy(input, fos);
 
-    } catch (Exception e){
-        Log.d(TAG, e.getMessage());
-    } finally {
-        if (input != null){
-            try {
-                input.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+        } catch (Exception e){
+            Log.d(TAG, e.getMessage());
+        } finally {
+            if (input != null){
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (output != null){
+                try {
+                    output.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        if (output != null){
-            try {
-                output.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     }
 
@@ -74,7 +74,7 @@ public class AndroidFrameworkReader {
         try {
             fin = context.openFileInput(preloadedClassFile);
             preloadedClasses.addAll(IOUtils.readLines(fin));
-            cleanOutComments();
+            removeComments();
         } catch(Exception e){
             e.printStackTrace();
 
@@ -91,7 +91,7 @@ public class AndroidFrameworkReader {
         return preloadedClasses;
     }
 
-    private void cleanOutComments(){
+    private void removeComments(){
         Iterator<String> it = preloadedClasses.iterator();
         while (it.hasNext()){
             String line = it.next();
@@ -101,6 +101,12 @@ public class AndroidFrameworkReader {
         }
     }
 
+    /**
+     * Extract file from zip
+     *
+     * @param zipFile
+     * @param fileToExtract
+     */
     public void extract (String zipFile, String fileToExtract){
         FileOutputStream out = null;
         FileInputStream fin = null;

@@ -10,6 +10,8 @@ import com.activeandroid.Cache;
 import com.activeandroid.util.SQLiteUtils;
 
 /**
+ * Defines a single API call
+ *
  * Created by wil on 1/30/15.
  */
 @Table(name="APICalls")
@@ -49,7 +51,6 @@ public class APICall extends Model{
         return className.substring(lastDot + 1, className.length());
     }
 
-    // Return cursor for result set for all todo items
     public static Cursor fetchResultCursor() {
         String tableName = Cache.getTableInfo(APICall.class).getTableName();
         // Query all items without any conditions
@@ -72,6 +73,7 @@ public class APICall extends Model{
     public static boolean isEmpty(){
         return new Select().from(APICall.class).limit(1).execute().isEmpty();
     }
+
 
 
 }
