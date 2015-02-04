@@ -1,6 +1,7 @@
 package ktwz.sandboxed;
 
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -132,7 +133,8 @@ public class MainActivity extends RoboActivity {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        return new File(dir, getString(R.string.filename_export));
+        String filename = Build.FINGERPRINT.replaceAll("/","_") + ".txt";
+        return new File(dir, filename);
     }
 
 }
