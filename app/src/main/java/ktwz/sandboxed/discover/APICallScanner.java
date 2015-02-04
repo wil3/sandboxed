@@ -47,7 +47,7 @@ public class APICallScanner {
                 Class clazz = Class.forName(className);
 
                 processClassMembers(clazz, className);
-              //  processMethods(clazz);
+                processMethods(clazz);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -71,17 +71,24 @@ public class APICallScanner {
 
             try {
                 //Its a primitive type and no parameters
-                if (isWrapperType(returnType) && parameterTypes.length == 0){
+                if (isWrapperType(returnType) && parameterTypes.length == 0 && !methodName.equals("toString")){
                     Object o = methods[i].invoke(instance);
-                    String value = o.toString();
+                    String value = (o == null) ? "null" : o.toString();
+
+                    String fullName = clazz.getName() + "." + methodName + "()";
+
+                    APICall call = new APICall(fullName, value);
+                    call.save();
 
                 } else {
                     //recurse
                 }
             } catch (IllegalAccessException e) {
-                Log.e(TAG, e.getMessage());
+                String message = (e.getMessage() == null)? "Error for " + clazz.getName() : e.getMessage();
+                Log.e(TAG, message);
             } catch (InvocationTargetException e) {
-                Log.e(TAG, e.getMessage());
+                String message = (e.getMessage() == null)? "Error for " + clazz.getName() : e.getMessage();
+                Log.e(TAG, message);
             }
         }
     }
@@ -95,9 +102,10 @@ public class APICallScanner {
             for (int i = 0; i < c.length; i++) {
                 Class[] parameterTypes = c[i].getParameterTypes();
 
-                if (parameterTypes.length == 0) { //Empty constructor, easy just use this
-                    constructor = c[i];
-
+                if (parameterTypes.length == 1 && parameterTypes[0].getName().equals(Context.class.getName())) {
+                    newInstance = c[i].newInstance(context);
+                    break;
+                } else if (parameterTypes.length == 0) { //Empty constructor, easy just use this
                     newInstance = c[i].newInstance();
                     break;
                 } else {
@@ -110,7 +118,8 @@ public class APICallScanner {
         } catch (IllegalAccessException e){
             Log.e(TAG, e.getMessage());
         } catch (InvocationTargetException e){
-            Log.e(TAG, e.getMessage());
+            String message = (e.getMessage() == null)? "Error for " + clazz.getName() : e.getMessage();
+            Log.e(TAG, message);
         }
         return newInstance;
     }
@@ -142,7 +151,7 @@ public class APICallScanner {
 
                 if (isWrapperType(obj.getClass())) {
 
-                    String l = className + "." + fieldName + "=" + obj.toString() + "\n";
+                    //String l = className + "." + fieldName + "=" + obj.toString() + "\n";
                     // fis.write(l.getBytes());
 
                     APICall call = new APICall(fullName,obj.toString());
@@ -202,7 +211,7 @@ public class APICallScanner {
         ret.add(Long.class);
         ret.add(Float.class);
         ret.add(Double.class);
-        ret.add(Void.class);
+        ret.add(String.class);
         return ret;
     }
 }

@@ -66,7 +66,7 @@ public class APICall extends Model{
         String tableName = Cache.getTableInfo(APICall.class).getTableName();
         //TODO make sure activeandroid doesnt have support for like or create pull request if it doesnt exist
         // Execute query on the underlying ActiveAndroid SQLite database
-        String query = "SELECT " + tableName + ".*, " + tableName + ".Id as _id  FROM " + tableName + " WHERE class LIKE '%" + filter + "%'";
+        String query = "SELECT " + tableName + ".*, " + tableName + ".Id as _id  FROM " + tableName + " WHERE class LIKE '%" + filter + "%' OR value LIKE '%" + filter + "%'";
 
         Cursor resultCursor = Cache.openDatabase().rawQuery(query, null);
         return resultCursor;

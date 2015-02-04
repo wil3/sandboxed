@@ -6,11 +6,12 @@
     android:padding="10dp"
     >
 
+    <!--
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
 
     <TextView
@@ -18,7 +19,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
-        tools:text="Context.MODE_PRIVATE"/>
+        android:singleLine="true"
+        tools:text="Context.MODE_PRIVATE_MORE_STUFF_MAKES_IT_LONGER"/>
 
     <TextView
         android:id="@+id/textPackage"
@@ -32,8 +34,47 @@
 
     <TextView
         android:id="@+id/textValue"
-        android:layout_width="wrap_content"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
         android:textColor="@color/black"
-        tools:text="This is this val"/>
+        tools:text="This is this val that is super super long"/>
+    -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textValue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:singleLine="true"
+            tools:text="This is this val that is super super long"/>
+
+
+        <TextView
+            android:id="@+id/textCall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#666666"
+            android:singleLine="true"
+            tools:text="Context.MODE_PRIVATE_MORE_STUFF_MAKES_IT_LONGER"/>
+
+        <TextView
+            android:id="@+id/textPackage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:textColor="#666666"
+
+            tools:text="android.content"/>
+
+
+
+
+    </LinearLayout>
+
+
 </LinearLayout>

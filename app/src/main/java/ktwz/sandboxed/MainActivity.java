@@ -15,6 +15,8 @@ import java.util.List;
 
 import ktwz.sandboxed.discover.APICallScanner;
 import ktwz.sandboxed.discover.AndroidFrameworkFileIO;
+import ktwz.sandboxed.discover.DatabaseBuilderTask;
+import ktwz.sandboxed.discover.ScannerTask;
 import ktwz.sandboxed.model.APICall;
 import roboguice.activity.RoboActivity;
 
@@ -53,9 +55,9 @@ public class MainActivity extends RoboActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch(id){
-           // case R.id.action_refresh:
-           //     refreshDatabase();
-           //     break;
+            case R.id.action_refresh:
+                refreshDatabase();
+                break;
             case R.id.action_export:
                 exportDatabase();
                 break;
@@ -64,7 +66,19 @@ public class MainActivity extends RoboActivity {
     }
 
     private void refreshDatabase(){
+        ScannerTask task = new ScannerTask(getApplicationContext(), new ScannerTask.DatabaseBuildTaskCallback(){
 
+            @Override
+            public void onDatabaseBuildSuccess() {
+
+            }
+
+            @Override
+            public void onDatabaseBuildFailure() {
+
+            }
+        });
+        task.execute();
     }
 
     private void exportDatabase(){
@@ -110,6 +124,8 @@ public class MainActivity extends RoboActivity {
         String notification = String.format(path,file.getAbsolutePath());
         Toast.makeText(getApplicationContext(),notification, Toast.LENGTH_LONG  ).show();
     }
+
+
     private File getExportFile() {
         File sdCard = Environment.getExternalStorageDirectory();
         File dir = new File(sdCard.getAbsolutePath() + File.separator + getString(R.string.app_name));
