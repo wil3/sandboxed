@@ -1,5 +1,7 @@
 package ktwz.sandboxed;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,13 +14,10 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 
-import ktwz.sandboxed.discover.APICallScanner;
-import ktwz.sandboxed.discover.AndroidFrameworkFileIO;
-import ktwz.sandboxed.discover.DatabaseBuilderTask;
-import ktwz.sandboxed.discover.ScannerTask;
+import ktwz.sandboxed.scanners.ScannerTask;
 import ktwz.sandboxed.model.APICall;
+import ktwz.sandboxed.scanners.ServiceScanner;
 import roboguice.activity.RoboActivity;
 
 
@@ -37,6 +36,7 @@ public class MainActivity extends RoboActivity {
                     .add(R.id.container, new APICallsFragment())
                     .commit();
         }
+        new ServiceScanner(this).scan();
 
     }
 
@@ -109,8 +109,14 @@ public class MainActivity extends RoboActivity {
             }
             cursor.close();
 
+            String path = getResources().getString(R.string.message_export_finish);
+            String notification = String.format(path,file.getAbsolutePath());
+            Toast.makeText(getApplicationContext(),notification, Toast.LENGTH_LONG  ).show();
+
         } catch (IOException e){
             Log.e(TAG, e.getMessage());
+            Toast.makeText(getApplicationContext(),e.getMessage(), Toast.LENGTH_LONG  ).show();
+
         } finally {
             if (fos != null){
                 try {
@@ -121,9 +127,7 @@ public class MainActivity extends RoboActivity {
             }
         }
 
-        String path = getResources().getString(R.string.message_export_finish);
-        String notification = String.format(path,file.getAbsolutePath());
-        Toast.makeText(getApplicationContext(),notification, Toast.LENGTH_LONG  ).show();
+
     }
 
 
@@ -133,7 +137,16 @@ public class MainActivity extends RoboActivity {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        String filename = Build.FINGERPRINT.replaceAll("/","_") + ".txt";
+
+        String version = "";
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            version = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String filename = getString(R.string.app_name) + "_" + version + "__" + Build.FINGERPRINT.replaceAll("/","__").replaceAll(":", "+") + ".txt";
         return new File(dir, filename);
     }
 

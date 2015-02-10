@@ -1,4 +1,4 @@
-package ktwz.sandboxed.discover;
+package ktwz.sandboxed.scanners;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -35,8 +35,8 @@ public class ScannerTask extends AsyncTask<Void, Void, Void> {
 
         List<String> classList = d.loadPreloadedClassList(preloadedClassFilename);
 
-        APICallScanner scanner = new APICallScanner(context, classList);
-        scanner.scan();
+        APICallScanner scanner = new APICallScanner(context);
+        scanner.scan(classList);
 
         return null;
     }

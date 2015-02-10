@@ -1,9 +1,11 @@
-package ktwz.sandboxed.discover;
+package ktwz.sandboxed.scanners;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
-import java.util.List;
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 import ktwz.sandboxed.R;
 
@@ -14,6 +16,7 @@ import ktwz.sandboxed.R;
 
 //TODO may want this in a service if it takes to long
 public class DatabaseBuilderTask extends AsyncTask<Void, Void, Void> {
+    private static final String TAG = DatabaseBuilderTask.class.getName();
 
     private Context context;
     private DatabaseBuildTaskCallback callback;
@@ -26,6 +29,10 @@ public class DatabaseBuilderTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
 
+
+
+        long start = System.currentTimeMillis();
+
         AndroidFrameworkFileIO d = new AndroidFrameworkFileIO(context);
 
         String preloadedClassFilename = context.getString(R.string.filename_preloaded_classes);
@@ -34,17 +41,28 @@ public class DatabaseBuilderTask extends AsyncTask<Void, Void, Void> {
 
         //TODO optimize, read from file and insert straight to db
 
+        d.loadClassListIntoDatabase(frameworkPath, preloadedClassFilename);
         //Copy the framework into our working directory
-        d.copy(frameworkPath, frameworkFilename);
+//        d.copy(frameworkPath, frameworkFilename);
 
         //Extract the file containing all the classes
-        d.extract(frameworkFilename, preloadedClassFilename);
+//        d.extract(frameworkFilename, preloadedClassFilename);
 
-        List<String> classList = d.loadPreloadedClassList(preloadedClassFilename);
+//        List<String> classList = d.loadPreloadedClassList(preloadedClassFilename);
 
-        APICallScanner scanner = new APICallScanner(context, classList);
-        scanner.scan();
+//        APICallScanner scanner = new APICallScanner(context, classList);
+//        scanner.scan();
 
+        long end = System.currentTimeMillis();
+
+        long millis  = end - start;
+
+        String lapse = String.format("%d min, %d sec",
+                TimeUnit.MILLISECONDS.toMinutes(millis),
+                TimeUnit.MILLISECONDS.toSeconds(millis) -
+                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
+        );
+        Log.d(TAG, "Scan lapse time " + lapse);
         return null;
     }
 

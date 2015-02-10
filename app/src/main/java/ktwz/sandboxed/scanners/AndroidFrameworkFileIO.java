@@ -1,4 +1,4 @@
-package ktwz.sandboxed.discover;
+package ktwz.sandboxed.scanners;
 
 import android.content.Context;
 import android.util.Log;
@@ -6,15 +6,20 @@ import android.util.Log;
 import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -165,4 +170,79 @@ public class AndroidFrameworkFileIO {
             }
         }
     }
+
+    public void loadClassListIntoDatabase(String pathToJar, String jarFilename){
+        JarFile jarFile = null;
+
+        try {
+            jarFile = new JarFile(pathToJar);
+
+            final Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                final JarEntry entry = entries.nextElement();
+                    if (entry.getName().equals(jarFilename)) {
+                        JarEntry fileEntry = jarFile.getJarEntry(entry.getName());
+                        processPreloadedClassFile(jarFile, fileEntry);
+                        break;
+                    }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (jarFile != null){
+                try {
+                    jarFile.close();
+                } catch (IOException e) {}
+            }
+        }
+
+    }
+
+    private void processPreloadedClassFile( JarFile jarFile, JarEntry fileEntry) throws IOException {
+        APICallScanner scanner = new APICallScanner(context);
+//
+        InputStream is = null;
+        InputStreamReader isr = null;
+        BufferedReader in = null;
+
+        try {
+            is = jarFile.getInputStream(fileEntry);
+            isr = new InputStreamReader(is);
+            in = new BufferedReader(isr);
+
+            while (in.ready()) {
+                String line = in.readLine();
+                if (line.startsWith("#")) {
+                    continue;
+                }
+
+                scanner.scan(line);
+
+            }
+
+
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                }
+            }
+            if (isr != null) {
+                try {
+                    isr.close();
+                } catch (IOException e) {
+                }
+            }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+
+        }
+
+    }
+
 }

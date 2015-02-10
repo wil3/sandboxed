@@ -16,7 +16,7 @@ import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import ktwz.sandboxed.discover.DatabaseBuilderTask;
+import ktwz.sandboxed.scanners.DatabaseBuilderTask;
 import ktwz.sandboxed.model.APICall;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;

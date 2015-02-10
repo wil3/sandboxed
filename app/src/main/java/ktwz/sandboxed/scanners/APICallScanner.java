@@ -1,4 +1,4 @@
-package ktwz.sandboxed.discover;
+package ktwz.sandboxed.scanners;
 
 import android.content.Context;
 import android.util.Log;
@@ -6,13 +6,10 @@ import android.util.Log;
 //import org.apache.log4j.Logger;
 //import org.apache.log4j.spi.LoggerFactory;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,27 +28,35 @@ public class APICallScanner {
   //  private final Logger log = Logger.getLogger(Discover.class);
     private Context context;
 
-    private List<String> classList;
-    public APICallScanner(Context context, List<String> classList){
+    public APICallScanner(Context context){
         this.context = context;
-        this.classList = classList;
     }
 
-    public void scan(){
+
+    public void scan( List<String> classList){
 
         for (String className : classList) { //These are the full class names
        // for (int i=0; i<5; i++){
        //     String className = classList.get(i);
 
-            try {
-                Class clazz = Class.forName(className);
+            scan(className);
+        }
+    }
 
-                processClassMembers(clazz, className);
-                processMethods(clazz);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+    /**
+     * Scan and insert into database
+     *
+     * @param className
+     */
+    public void scan(String className){
 
+        try {
+            Class clazz = Class.forName(className);
+
+            processClassMembers(clazz, className);
+            processMethods(clazz);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -59,12 +64,13 @@ public class APICallScanner {
        // Constructor constructor = getInstance(clazz);
         Object instance = getInstance(clazz);
         if (instance == null) {
-            Log.e(TAG, "Can not initialize constructor for class " + clazz.getName());
+          //  Log.e(TAG, "Can not initialize constructor for class " + clazz.getName());
             return;
         }
 
-        Method[] methods = clazz.getMethods(); //all public methods
+        Method[] methods = clazz.getDeclaredMethods();//getMethods(); //all public methods
         for (int i=0; i<methods.length; i++){
+            methods[i].setAccessible(true);
             String methodName = methods[i].getName();
             Class returnType = methods[i].getReturnType();
             Class [] parameterTypes = methods[i].getParameterTypes();
@@ -85,10 +91,10 @@ public class APICallScanner {
                 }
             } catch (IllegalAccessException e) {
                 String message = (e.getMessage() == null)? "Error for " + clazz.getName() : e.getMessage();
-                Log.e(TAG, message);
+                //Log.e(TAG, message);
             } catch (InvocationTargetException e) {
                 String message = (e.getMessage() == null)? "Error for " + clazz.getName() : e.getMessage();
-                Log.e(TAG, message);
+                //Log.e(TAG, message);
             }
         }
     }
@@ -114,12 +120,14 @@ public class APICallScanner {
             }
 
         } catch (InstantiationException e){
-            Log.e(TAG, e.getMessage());
+            String message = (e.getMessage() == null)? "Error for " + clazz.getName() : clazz.getName()  + ":" + e.getMessage();
+            //Log.e(TAG, message);
         } catch (IllegalAccessException e){
-            Log.e(TAG, e.getMessage());
+            String message = (e.getMessage() == null)? "Error for " + clazz.getName() : clazz.getName()  + ":" + e.getMessage();
+           //Log.e(TAG, message);
         } catch (InvocationTargetException e){
-            String message = (e.getMessage() == null)? "Error for " + clazz.getName() : e.getMessage();
-            Log.e(TAG, message);
+            String message = (e.getMessage() == null)? "Error for " + clazz.getName() : clazz.getName()  + ":" + e.getMessage();
+            //Log.e(TAG, message);
         }
         return newInstance;
     }
@@ -137,12 +145,14 @@ public class APICallScanner {
 
         for (int j=0; j<fields.length; j++){
             //TODO should we do anything about illegal accessed properties?
+            fields[j].setAccessible(true);
             String fieldName = fields[j].getName();
             String fullName = className + "." + fieldName;
 
             try {
 
                 Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
                 if (field == null) {
                     continue;
                 }
@@ -164,12 +174,14 @@ public class APICallScanner {
 
 
             } catch (RuntimeException e){
-                String message = (e.getMessage() == null)? "Error for " + fullName : e.getMessage();
-                Log.e(TAG,message);
+                String message = (e.getMessage() == null)? "Error for " + fullName : fullName + ":" + e.getMessage();
+                //Log.e(TAG,message);
             } catch (IllegalAccessException e) {
-                Log.e(TAG, fullName + ":" + e.getMessage() );
+                String message = (e.getMessage() == null)? "Error for " + fullName : fullName + ":" + e.getMessage();
+                //Log.e(TAG, message );
             } catch (NoSuchFieldException e) {
-                Log.e(TAG, fullName + ":" + e.getMessage());
+                String message = (e.getMessage() == null)? "Error for " + fullName : fullName + ":" + e.getMessage();
+                //Log.e(TAG, message);
             }
         }
 
