@@ -16,15 +16,28 @@ import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import ktwz.sandboxed.scanners.DatabaseBuilderTask;
+import java.util.List;
+
+import ktwz.sandboxed.fingerprint.APICallScanner;
+import ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
+import ktwz.sandboxed.fingerprint.DatabaseBuilderTask;
 import ktwz.sandboxed.model.APICall;
+import ktwz.sandboxed.fingerprint.SerializedFingerprintTask;
+import ktwz.sandboxed.fingerprint.GetPreloadedClassesTask;
+import ktwz.sandboxed.fingerprint.ServiceScannerTask;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
 
-public class APICallsFragment extends RoboFragment implements DatabaseBuilderTask.DatabaseBuildTaskCallback{
+public class APICallsFragment extends RoboFragment implements DatabaseBuilderTask.DatabaseBuildTaskCallback,
+        GetPreloadedClassesTask.GetPreloadedClassesTaskCallback,
+        ServiceScannerTask.ScannerTaskCallback
+       //, FingerprintTask.FingerprintTaskCallback
+{
 
     private static final String TAG = APICallsFragment.class.getName();
+
+
 
     @InjectView(R.id.input_search)  private EditText filterText;
     @InjectView(R.id.list_apicalls) private ListView apiList;
@@ -53,13 +66,21 @@ public class APICallsFragment extends RoboFragment implements DatabaseBuilderTas
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-        if (APICall.isEmpty()){
-            Log.d(TAG, "Database is empty, needs to be initialized");
-            launchRingDialog();
-            DatabaseBuilderTask task = new DatabaseBuilderTask(getActivity().getApplicationContext(), this);
+        if (getResources().getBoolean(R.bool.c2)) {
+            GetPreloadedClassesTask task = new GetPreloadedClassesTask(getActivity().getApplicationContext(), this);
             task.execute();
+        } else {
+            if (APICall.isEmpty()){
+                Log.d(TAG, "Database is empty, needs to be initialized");
+                launchRingDialog();
+                //  DatabaseBuilderTask task = new DatabaseBuilderTask(getActivity().getApplicationContext(), this);
+                //  task.execute();
+                GetPreloadedClassesTask task = new GetPreloadedClassesTask(getActivity().getApplicationContext(), this);
+                task.execute();
+            }
         }
+
+
 
         Cursor c = APICall.fetchResultCursor();
         adapter = new APICallCursorAdapter(getActivity().getApplicationContext(),c);
@@ -88,6 +109,11 @@ public class APICallsFragment extends RoboFragment implements DatabaseBuilderTas
             public void afterTextChanged(Editable arg0) { }
         });
     }
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.d(TAG, "ON PAUSE");
+    }
 
     @Override
     public void onDatabaseBuildSuccess() {
@@ -100,6 +126,7 @@ public class APICallsFragment extends RoboFragment implements DatabaseBuilderTas
 
     }
 
+
     @Override
     public void onDatabaseBuildFailure() {
         if (ringProgressDialog != null) {
@@ -109,9 +136,87 @@ public class APICallsFragment extends RoboFragment implements DatabaseBuilderTas
 
 
 
-    public void launchRingDialog() {
+    private void launchRingDialog() {
         ringProgressDialog = ProgressDialog.show(getActivity(), getString(R.string.message_database_title), getString(R.string.message_database_message), true);
         ringProgressDialog.setCancelable(false);
+    }
+
+    private int numberTasks=0;
+    private long startTime =0;
+
+    @Override
+    public void onGetPreloadedClassesSuccess(List<String> classes) {
+        int cores = Runtime.getRuntime().availableProcessors();
+        Log.d(TAG, "Scanning " + classes.size() + " classes.");
+        Log.d(TAG, "Number of cores = " + cores);
+        startTime = System.currentTimeMillis();
+
+/*
+        int groups = 2;
+        int size = (int) Math.ceil(((double)classes.size())/((double)groups));
+        for (int i=0; i< groups; i++){
+            int start = i*size;
+            int end = Math.min(start + size, classes.size());
+            FingerprintTask fingerprintTask = new FingerprintTask(getActivity().getApplicationContext(), this, "id="+i);
+            Log.d(TAG, "Task processing " + (end-start) + " calls.");
+            fingerprintTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, classes.subList(start, end)); //inclusize, exclusive
+            numberTasks++;
+        }
+*/
+
+        /*
+        FingerprintTask fingerprintTask = new FingerprintTask(getActivity().getApplicationContext(), this, "id=0");
+        fingerprintTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, classes); //inclusize, exclusive
+        numberTasks++;
+
+        ServiceScannerTask serviceTask = new ServiceScannerTask(getActivity().getApplicationContext(), this);
+        serviceTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        numberTasks++;
+*/
+
+        SerializedFingerprintTask task = new SerializedFingerprintTask(getActivity().getApplicationContext(), this);
+        task.execute(classes);
+      //  numberTasks++;
+
+        Log.d(TAG, "Launched " + numberTasks + " tasks.");
+    }
+
+    @Override
+    public void onGetPreloadedClassesFailure() {
+
+    }
+
+    @Override
+    public void onScannerSuccess(String id) {
+       // Log.d(TAG, "Task complete " + id);
+        //numberTasks--;
+        //if (numberTasks == 0){
+            postScan();
+        //}
+
+    }
+
+
+    private void postScan(){
+
+        if (ringProgressDialog != null) {
+            ringProgressDialog.dismiss();
+        }
+        Cursor cursor = APICall.fetchResultCursor();
+        adapter.changeCursor(cursor);
+        adapter.notifyDataSetChanged();
+
+
+    }
+    /*
+    @Override
+    public void onFingerprintSuccess() {
+
+    }
+*/
+    @Override
+    public void onScannerFailure() {
+
     }
 
     class APICallCursorAdapter extends CursorAdapter {

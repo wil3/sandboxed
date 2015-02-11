@@ -1,9 +1,6 @@
 package ktwz.sandboxed;
 
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -15,9 +12,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import ktwz.sandboxed.scanners.ScannerTask;
+import ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
+import ktwz.sandboxed.fingerprint.ScannerTask;
 import ktwz.sandboxed.model.APICall;
-import ktwz.sandboxed.scanners.ServiceScanner;
 import roboguice.activity.RoboActivity;
 
 
@@ -36,8 +33,6 @@ public class MainActivity extends RoboActivity {
                     .add(R.id.container, new APICallsFragment())
                     .commit();
         }
-        new ServiceScanner(this).scan();
-
     }
 
 
@@ -91,7 +86,7 @@ public class MainActivity extends RoboActivity {
 
         //TODO add some sort of loading thing
         FileOutputStream fos = null;
-        File file = getExportFile();
+        File file = new AndroidFrameworkFileIO(this).getExportFile();
 
         try {
             fos = new FileOutputStream(file);
@@ -130,24 +125,5 @@ public class MainActivity extends RoboActivity {
 
     }
 
-
-    private File getExportFile() {
-        File sdCard = Environment.getExternalStorageDirectory();
-        File dir = new File(sdCard.getAbsolutePath() + File.separator + getString(R.string.app_name));
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        String version = "";
-        try {
-            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-            version = pInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        String filename = getString(R.string.app_name) + "_" + version + "__" + Build.FINGERPRINT.replaceAll("/","__").replaceAll(":", "+") + ".txt";
-        return new File(dir, filename);
-    }
 
 }

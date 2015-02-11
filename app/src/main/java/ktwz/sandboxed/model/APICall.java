@@ -57,7 +57,7 @@ public class APICall extends Model{
         String tableName = Cache.getTableInfo(APICall.class).getTableName();
         // Query all items without any conditions
         String resultRecords = new Select(tableName + ".*, " + tableName + ".Id as _id").
-                from(APICall.class).toSql();
+                from(APICall.class).orderBy("class, value ASC").toSql();
         // Execute query on the underlying ActiveAndroid SQLite database
         Cursor resultCursor = Cache.openDatabase().rawQuery(resultRecords, null);
         return resultCursor;
@@ -66,7 +66,7 @@ public class APICall extends Model{
         String tableName = Cache.getTableInfo(APICall.class).getTableName();
         //TODO make sure activeandroid doesnt have support for like or create pull request if it doesnt exist
         // Execute query on the underlying ActiveAndroid SQLite database
-        String query = "SELECT " + tableName + ".*, " + tableName + ".Id as _id  FROM " + tableName + " WHERE class LIKE '%" + filter + "%' OR value LIKE '%" + filter + "%'";
+        String query = "SELECT " + tableName + ".*, " + tableName + ".Id as _id  FROM " + tableName + " WHERE class LIKE '%" + filter + "%' OR value LIKE '%" + filter + "%' ORDER BY class, value ASC";
 
         Cursor resultCursor = Cache.openDatabase().rawQuery(query, null);
         return resultCursor;

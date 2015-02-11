@@ -1,6 +1,10 @@
-package ktwz.sandboxed.scanners;
+package ktwz.sandboxed.fingerprint;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
 
 import org.apache.commons.io.IOUtils;
@@ -16,12 +20,17 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
+
+import ktwz.sandboxed.R;
+import ktwz.sandboxed.model.APICall;
 
 /**
  * Handles the file IO for obtaining the class list for available API.
@@ -171,6 +180,186 @@ public class AndroidFrameworkFileIO {
         }
     }
 
+
+    public void compress(File inputFile, File outputFile){
+        FileInputStream in = null;
+        ZipOutputStream out = null;
+        try {
+            // input file
+            in = new FileInputStream(inputFile);
+
+            // out put file
+            out = new ZipOutputStream(new FileOutputStream(outputFile));
+
+            // name the file inside the zip  file
+            out.putNextEntry(new ZipEntry(inputFile.getName()));
+
+            // buffer size
+            byte[] b = new byte[1024];
+            int count;
+
+            while ((count = in.read(b)) > 0) {
+                out.write(b, 0, count);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (in != null){
+                try {in.close();} catch(Exception e){}
+            }
+            if (out != null){
+                try {out.close();} catch(Exception e){}
+            }
+        }
+
+    }
+
+    public void exportHashToFile(Hashtable<String,String> apis){
+
+
+        if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
+            //TODO throws
+            // Toast.makeText(this, "External SD card not mounted", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        //TODO add some sort of loading thing
+        FileOutputStream fos = null;
+        File file = getExportFile();
+
+        try {
+            fos = new FileOutputStream(file);
+
+            Enumeration<String> enumeration = apis.keys();
+            while(enumeration.hasMoreElements()) {
+                String key = enumeration.nextElement();
+                String value = apis.get(key);
+                String line = key + "=" + value + "\n";
+                fos.write(line.getBytes());
+            }
+
+        } catch (IOException e){
+            Log.e(TAG, e.getMessage());
+        } finally {
+            if (fos != null){
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+
+    public File getExportFile() {
+        File sdCard = Environment.getExternalStorageDirectory();
+        File dir = new File(sdCard.getAbsolutePath() + File.separator + context.getString(R.string.app_name));
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        String version = "";
+        try {
+            PackageInfo pInfo = context.getPackageManager().getPackageInfo( context.getPackageName(), 0);
+            version = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        //+ "-" + System.currentTimeMillis() +
+        String filename =  context.getString(R.string.app_name) + "_" + version + "__" + Build.FINGERPRINT.replaceAll("/","__").replaceAll(":", "+") + ".txt";
+        return new File(dir, filename);
+    }
+
+    public List<String> loadClassListIntoMemory(String pathToJar, String jarFilename){
+        JarFile jarFile = null;
+
+        try {
+            jarFile = new JarFile(pathToJar);
+
+            final Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                final JarEntry entry = entries.nextElement();
+                if (entry.getName().equals(jarFilename)) {
+                    JarEntry fileEntry = jarFile.getJarEntry(entry.getName());
+                    return processPreloadedClassFileIntoMemory(jarFile, fileEntry);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (jarFile != null){
+                try {
+                    jarFile.close();
+                } catch (IOException e) {}
+            }
+        }
+        return null;
+    }
+
+    private List<String> processPreloadedClassFileIntoMemory( JarFile jarFile, JarEntry fileEntry) throws IOException {
+//
+        List<String> calls = new ArrayList<String>();
+
+        InputStream is = null;
+        InputStreamReader isr = null;
+        BufferedReader in = null;
+
+        try {
+            is = jarFile.getInputStream(fileEntry);
+            isr = new InputStreamReader(is);
+            in = new BufferedReader(isr);
+
+
+            while (in.ready()) {
+                String line = in.readLine();
+                if (line.startsWith("#")) {
+                    continue;
+                }
+
+                calls.add(line);
+            }
+
+
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                }
+            }
+            if (isr != null) {
+                try {
+                    isr.close();
+                } catch (IOException e) {
+                }
+            }
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+
+        }
+        return calls;
+
+    }
+
+    public void loadHashtableIntoDatabase(Hashtable<String,String> apis){
+
+
+        Enumeration<String> enumeration = apis.keys();
+        while(enumeration.hasMoreElements()) {
+            String key = enumeration.nextElement();
+            String value = apis.get(key);
+            APICall call = new APICall(key, value);
+            call.save();
+        }
+    }
     public void loadClassListIntoDatabase(String pathToJar, String jarFilename){
         JarFile jarFile = null;
 
@@ -216,7 +405,7 @@ public class AndroidFrameworkFileIO {
                     continue;
                 }
 
-                scanner.scan(line);
+                scanner.fullScan(line);
 
             }
 

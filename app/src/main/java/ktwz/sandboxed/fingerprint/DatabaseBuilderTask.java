@@ -1,10 +1,11 @@
-package ktwz.sandboxed.scanners;
+package ktwz.sandboxed.fingerprint;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.util.Log;
 
-import java.util.Calendar;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
 
 import ktwz.sandboxed.R;
@@ -18,30 +19,41 @@ import ktwz.sandboxed.R;
 public class DatabaseBuilderTask extends AsyncTask<Void, Void, Void> {
     private static final String TAG = DatabaseBuilderTask.class.getName();
 
-    private Context context;
+    private final WeakReference<Context> contextReference;
     private DatabaseBuildTaskCallback callback;
+    String preloadedClassFilename;
+    String frameworkFilename;
+    String frameworkPath;
     public DatabaseBuilderTask(Context context, DatabaseBuildTaskCallback callback){
         super();
-        this.context = context;
+        contextReference = new WeakReference<Context>(context);
+
+        preloadedClassFilename = context.getString(R.string.filename_preloaded_classes);
+        frameworkFilename = context.getString(R.string.filename_android_framework);
+        frameworkPath = context.getString(R.string.path_android_framework);
+
         this.callback = callback;
     }
 
     @Override
     protected Void doInBackground(Void... params) {
 
+        APICallScanner.NATIVE_COUNT=0;
+        Looper.prepare(); //Prevent RTE cant create handler without calling looper.prepare
 
 
         long start = System.currentTimeMillis();
 
-        AndroidFrameworkFileIO d = new AndroidFrameworkFileIO(context);
-
-        String preloadedClassFilename = context.getString(R.string.filename_preloaded_classes);
-        String frameworkFilename = context.getString(R.string.filename_android_framework);
-        String frameworkPath = context.getString(R.string.path_android_framework);
+        AndroidFrameworkFileIO d = new AndroidFrameworkFileIO(contextReference.get());
 
         //TODO optimize, read from file and insert straight to db
 
         d.loadClassListIntoDatabase(frameworkPath, preloadedClassFilename);
+
+
+        new ServiceScanner(contextReference.get()).scan();
+
+
         //Copy the framework into our working directory
 //        d.copy(frameworkPath, frameworkFilename);
 
@@ -54,7 +66,6 @@ public class DatabaseBuilderTask extends AsyncTask<Void, Void, Void> {
 //        scanner.scan();
 
         long end = System.currentTimeMillis();
-
         long millis  = end - start;
 
         String lapse = String.format("%d min, %d sec",
@@ -63,6 +74,7 @@ public class DatabaseBuilderTask extends AsyncTask<Void, Void, Void> {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
         );
         Log.d(TAG, "Scan lapse time " + lapse);
+        Log.d(TAG, "Native count= " + APICallScanner.NATIVE_COUNT);
         return null;
     }
 
