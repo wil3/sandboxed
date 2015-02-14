@@ -5,7 +5,7 @@ android {
     buildToolsVersion "19.1.0"
 
     defaultConfig {
-        applicationId "ktwz.sandboxed"
+        applicationId "edu.bu.ktwz.sandboxed"
         minSdkVersion 16
         targetSdkVersion 19
         versionCode 1
@@ -20,14 +20,19 @@ android {
 
     productFlavors {
 
-        c2 {
-            applicationId "ktwz.sandboxed.c2"
+        remote {
+            applicationId "edu.bu.ktwz.sandboxed.remote"
 
-            versionName "0.2.0-c2"
+            versionName "0.2.0-remote"
         }
-        alone {
-            applicationId "ktwz.sandboxed.alone"
-            versionName "0.2.0-alone"
+        emulator {
+            applicationId "edu.bu.ktwz.sandboxed.emulator"
+
+            versionName "0.2.0-emulator"
+        }
+        device {
+            applicationId "edu.bu.ktwz.sandboxed.device"
+            versionName "0.2.0-device"
 
         }
     }

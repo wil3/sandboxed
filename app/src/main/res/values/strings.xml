@@ -11,8 +11,8 @@
     <string name="filename_export">sandbox.txt</string>
     <string name="filename_preloaded_classes">preloaded-classes</string>
 
-    <string name="message_database_title">Scanning Android API...</string>
-    <string name="message_database_message">Creating database of Android API calls. This could take a while grab a beverage.</string>
+    <string name="message_database_title">Fingerprinting device</string>
+    <string name="message_database_message">Collecting all available information through Android API. This could take a while grab a beverage.</string>
     <string formatted="false" name="message_export_finish">Scan exported to %s</string>
 
     <string name="url_c2_upload">http://192.168.1.138:3000/api/uploads</string>
