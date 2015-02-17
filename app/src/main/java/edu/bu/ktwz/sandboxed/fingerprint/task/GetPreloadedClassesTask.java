@@ -1,8 +1,7 @@
-package edu.bu.ktwz.sandboxed.fingerprint;
+package edu.bu.ktwz.sandboxed.fingerprint.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Looper;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
@@ -10,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import edu.bu.ktwz.sandboxed.R;
+import edu.bu.ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
 
 /**
  * Build the database in a separate thread

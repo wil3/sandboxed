@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import java.lang.reflect.Field;
+import java.util.Hashtable;
 
 /**
  * Created by wil on 2/9/15.
@@ -17,7 +18,7 @@ public class ServiceScanner {
         this.context = context;
     }
 
-    public void scan(){
+    public Hashtable<String, String> scan(){
         scanner = new APICallScanner(context);
 
         Field[] fields = Context.class.getDeclaredFields();
@@ -33,6 +34,7 @@ public class ServiceScanner {
                 }
             }
         }
+        return scanner.getResults();
     }
 
     private  void createService(String serviceName){

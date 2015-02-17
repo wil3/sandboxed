@@ -18,11 +18,11 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import edu.bu.ktwz.sandboxed.fingerprint.DatabaseBuilderTask;
+import edu.bu.ktwz.sandboxed.fingerprint.task.DatabaseBuilderTask;
 import edu.bu.ktwz.sandboxed.model.APICall;
-import edu.bu.ktwz.sandboxed.fingerprint.SerializedFingerprintTask;
-import edu.bu.ktwz.sandboxed.fingerprint.GetPreloadedClassesTask;
-import edu.bu.ktwz.sandboxed.fingerprint.ServiceScannerTask;
+import edu.bu.ktwz.sandboxed.fingerprint.task.SerializedFingerprintTask;
+import edu.bu.ktwz.sandboxed.fingerprint.task.GetPreloadedClassesTask;
+import edu.bu.ktwz.sandboxed.fingerprint.task.ServiceScannerTask;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -65,9 +65,6 @@ public class FingerprintFragment extends RoboFragment implements DatabaseBuilder
         super.onViewCreated(view, savedInstanceState);
 
 
-
-
-
         Cursor c = APICall.fetchResultCursor();
         adapter = new APICallCursorAdapter(getActivity().getApplicationContext(),c);
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
@@ -95,6 +92,7 @@ public class FingerprintFragment extends RoboFragment implements DatabaseBuilder
             public void afterTextChanged(Editable arg0) { }
         });
     }
+    /*
     @Override
     public void onStart(){
         super.onStart();
@@ -107,6 +105,7 @@ public class FingerprintFragment extends RoboFragment implements DatabaseBuilder
             launchRingDialog();
             GetPreloadedClassesTask task = new GetPreloadedClassesTask(getActivity().getApplicationContext(), this);
             task.execute();
+
         } else {
             if (APICall.isEmpty()){
                 Log.d(TAG, "Database is empty, needs to be initialized");
@@ -115,13 +114,14 @@ public class FingerprintFragment extends RoboFragment implements DatabaseBuilder
                 //  task.execute();
                 GetPreloadedClassesTask task = new GetPreloadedClassesTask(getActivity().getApplicationContext(), this);
                 task.execute();
+            } else {
+
             }
         }
-    }
+    }*/
     @Override
     public void onPause(){
         super.onPause();
-        Log.d(TAG, "ON PAUSE");
     }
 
     @Override

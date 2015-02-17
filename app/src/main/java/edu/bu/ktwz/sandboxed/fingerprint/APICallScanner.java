@@ -26,9 +26,13 @@ import java.util.Set;
 //TODO not everything has a constructor like Sensor.class, how to get instance of this?
 public class APICallScanner {
 
+    public interface ScanProgressListener {
+        public void onClassScanned(String className);
+    }
 
-    public static final Hashtable<String,String> fingerprints = new Hashtable<String, String>();
+    private final Hashtable<String,String> fingerprints = new Hashtable<String, String>();
 
+    private ScanProgressListener listener;
     public static int NATIVE_COUNT = 0;
 
     private static final String TAG = APICallScanner.class.getName();
@@ -53,10 +57,16 @@ public class APICallScanner {
     public void fullScan(List<String> classList){
 
         for (String className : classList) { //These are the full class names
+            if (listener != null){
+                listener.onClassScanned(className);
+            }
             fullScan(className);
         }
     }
 
+    public void setScanListener(ScanProgressListener listener){
+        this.listener = listener;
+    }
     /**
      * Scan and insert into database
      *
@@ -234,6 +244,9 @@ public class APICallScanner {
         }
     }
 
+    public Hashtable<String,String> getResults(){
+        return fingerprints;
+    }
     private boolean shouldRecurse(Class clazz, Class returnType){
         boolean should = true;
         Class[] interfaces = clazz.getInterfaces();
@@ -287,6 +300,8 @@ public class APICallScanner {
         } catch (InvocationTargetException e){
             String message = (e.getMessage() == null)? "Error for " + clazz.getName() : clazz.getName()  + ":" + e.getMessage();
             //Log.e(TAG, message);
+        } catch (RuntimeException e){
+
         }
         return newInstance;
     }

@@ -51,5 +51,9 @@ dependencies {
    // compile 'de.mindpipe.android:android-logging-log4j:1.0.2'
    // compile 'log4j:log4j:1.2.16'
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
-
+    compile ('com.octo.android.robospice:robospice:1.4.5'){
+        exclude module:'commons-lang3'
+        exclude module: 'commons-io'
+        exclude module: 'support-v4'
+    }
 }

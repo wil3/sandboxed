@@ -83,6 +83,9 @@
             </intent-filter>
         </activity>
 
+        <service
+            android:name="edu.bu.ktwz.sandboxed.fingerprint.OfflineSpiceService"
+            android:exported="false" />
     </application>
 
 </manifest>

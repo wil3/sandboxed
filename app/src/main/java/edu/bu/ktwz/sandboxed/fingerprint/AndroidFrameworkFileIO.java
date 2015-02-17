@@ -217,13 +217,13 @@ public class AndroidFrameworkFileIO {
 
     }
 
-    public void exportHashToFile(Hashtable<String,String> apis){
+    public String exportHashToFile(Hashtable<String,String> apis){
 
 
         if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
             //TODO throws
             // Toast.makeText(this, "External SD card not mounted", Toast.LENGTH_LONG).show();
-            return;
+            return null;
         }
 
         //TODO add some sort of loading thing
@@ -241,6 +241,7 @@ public class AndroidFrameworkFileIO {
                 fos.write(line.getBytes());
             }
 
+
         } catch (IOException e){
             Log.e(TAG, e.getMessage());
         } finally {
@@ -252,6 +253,8 @@ public class AndroidFrameworkFileIO {
                 }
             }
         }
+
+        return file.getAbsolutePath();
     }
 
 

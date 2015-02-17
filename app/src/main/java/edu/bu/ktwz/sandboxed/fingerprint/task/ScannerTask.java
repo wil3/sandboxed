@@ -1,4 +1,4 @@
-package edu.bu.ktwz.sandboxed.fingerprint;
+package edu.bu.ktwz.sandboxed.fingerprint.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -7,6 +7,8 @@ import android.os.Looper;
 import java.util.List;
 
 import edu.bu.ktwz.sandboxed.R;
+import edu.bu.ktwz.sandboxed.fingerprint.APICallScanner;
+import edu.bu.ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
 
 /**
  * Build the database in a separate thread

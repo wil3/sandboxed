@@ -11,16 +11,18 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.Override;
 
+import edu.bu.ktwz.sandboxed.LoadingFragment;
 import edu.bu.ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
-import edu.bu.ktwz.sandboxed.fingerprint.ScannerTask;
+import edu.bu.ktwz.sandboxed.fingerprint.task.ScannerTask;
 import edu.bu.ktwz.sandboxed.model.APICall;
 import roboguice.activity.RoboActivity;
 
 
 //@ContentView(R.layout.activity_main)
 
-public class MainActivity extends RoboActivity {
+public class MainActivity extends RoboActivity implements LoadingFragment.LoadCallback{
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -29,8 +31,11 @@ public class MainActivity extends RoboActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
+
+            Fragment f = (APICall.isEmpty()) ? new LoadingFragment() : new FingerprintFragment()
+
             getFragmentManager().beginTransaction()
-                    .add(R.id.container, new FingerprintFragment())
+                    .add(R.id.container, f)
                     .commit();
         }
     }
@@ -126,4 +131,14 @@ public class MainActivity extends RoboActivity {
     }
 
 
+    @Override
+    public void onLoadSuccess() {
+        getFragmentManager().beginTransaction().replace(R.id.container,new FingerprintFragment())
+
+    }
+
+    @Override
+    public void onLoadFailure() {
+
+    }
 }

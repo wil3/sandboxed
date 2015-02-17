@@ -4,16 +4,20 @@
 
     android:orientation="vertical"
     >
-    <!-- Editext for Search -->
-    <EditText android:id="@+id/input_search"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Filter results"
-        />
-    <ListView
-        android:id="@+id/list_apicalls"
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
 
-        />
+
+
+        <!-- Editext for Search -->
+        <EditText android:id="@+id/input_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Filter results"
+            />
+        <ListView
+            android:id="@+id/list_apicalls"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+
+            />
+
 </LinearLayout>

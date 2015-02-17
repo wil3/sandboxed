@@ -1,9 +1,11 @@
-package edu.bu.ktwz.sandboxed.fingerprint;
+package edu.bu.ktwz.sandboxed.fingerprint.task;
 
 import android.content.Context;
 import android.os.AsyncTask;
 
 import java.lang.ref.WeakReference;
+
+import edu.bu.ktwz.sandboxed.fingerprint.ServiceScanner;
 
 /**
  * Build the database in a separate thread

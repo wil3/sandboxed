@@ -5,16 +5,16 @@
     <string name="action_settings">Settings</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_export">Export</string>
-
     <string name="path_android_framework">/system/framework/framework.jar</string>
     <string name="filename_android_framework">framework.zip</string>
     <string name="filename_export">sandbox.txt</string>
     <string name="filename_preloaded_classes">preloaded-classes</string>
-
     <string name="message_database_title">Fingerprinting device</string>
     <string name="message_database_message">Collecting all available information through Android API. This could take a while grab a beverage.</string>
-    <string formatted="false" name="message_export_finish">Scan exported to %s</string>
-
+    <string name="message_export_finish" formatted="false">Scan exported to %s</string>
+    <string name="message_lapse" formatted="false">Scan completed in %d min, %d sec.</string>
+    <string name="message_fingerprint_finish">Fingerprinting Complete!</string>
+    <string name="response_c2"  formatted="false">C2 responded with %s </string>
     <string name="url_c2_upload">http://192.168.1.138:3000/api/uploads</string>
 
 </resources>

