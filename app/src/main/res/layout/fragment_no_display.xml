@@ -20,20 +20,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         >
-    <TextView
-        android:id="@+id/textMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_database_title"
-        android:paddingBottom="10dp"
-        android:textSize="20sp" />
-     <TextView
-            android:id="@+id/textMessageDetails"
+        <TextView
+            android:id="@+id/textMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
-         tools:text="Scan written to Sandboxed/out"
-            />
+            android:text="@string/message_database_title"
+            android:paddingBottom="10dp"
+            android:textSize="20sp" />
+
     </LinearLayout>
     <ProgressBar
 
@@ -43,6 +37,20 @@
         android:id="@+id/progressBar"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
+        />
+    <TextView
+        android:id="@+id/textMessageDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+
+        android:text=""
+        tools:text="Scan written to Sandboxed.
+             There are a lot of details here
+             There are a lot of details here
+             There are a lot of details here
+             There are a lot of details here
+             There are a lot of details here"
         />
 
 

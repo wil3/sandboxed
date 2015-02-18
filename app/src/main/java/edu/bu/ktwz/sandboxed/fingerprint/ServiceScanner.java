@@ -4,22 +4,23 @@ import android.content.Context;
 import android.util.Log;
 
 import java.lang.reflect.Field;
-import java.util.Hashtable;
 
 /**
  * Created by wil on 2/9/15.
  */
-public class ServiceScanner {
+public class ServiceScanner extends APIScanner {
 
     public static final String SERVICE_SUFFIX = "_SERVICE";
     private Context context;
-    APICallScanner scanner;
+    //APICallScanner scanner;
+
     public ServiceScanner(Context context){
+        super(context);
         this.context = context;
     }
 
-    public Hashtable<String, String> scan(){
-        scanner = new APICallScanner(context);
+    public void scan(){
+        //scanner = new APICallScanner(context);
 
         Field[] fields = Context.class.getDeclaredFields();
         for (int j=0; j<fields.length; j++) {
@@ -34,7 +35,7 @@ public class ServiceScanner {
                 }
             }
         }
-        return scanner.getResults();
+        //return scanner.getResults();
     }
 
     private  void createService(String serviceName){
@@ -42,8 +43,8 @@ public class ServiceScanner {
              Object service = context.getSystemService(serviceName);
              Class clazz = service.getClass();
 
-             scanner.processClassMembers(clazz);
-             scanner.processMethods(clazz, service, null);
+             processClassMembers(clazz);
+             processMethods(clazz, service, null);
          } catch(RuntimeException e){
              if (e.getMessage() != null) {
                  Log.d("Service", e.getMessage());

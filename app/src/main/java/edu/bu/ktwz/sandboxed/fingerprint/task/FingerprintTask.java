@@ -7,7 +7,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import edu.bu.ktwz.sandboxed.fingerprint.APICallScanner;
+import edu.bu.ktwz.sandboxed.fingerprint.APIScanner;
 
 /**
  * Build the database in a separate thread
@@ -41,7 +41,7 @@ public class FingerprintTask extends AsyncTask<List<String> , Void, Void> {
         long start = System.currentTimeMillis();
 
 
-        APICallScanner generalAPIScan = new APICallScanner(contextReference.get());
+        APIScanner generalAPIScan = new APIScanner(contextReference.get());
         generalAPIScan.fullScan(classes);
 
 

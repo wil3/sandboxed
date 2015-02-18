@@ -400,7 +400,7 @@ public class AndroidFrameworkFileIO {
     }
 
     private void processPreloadedClassFile( JarFile jarFile, JarEntry fileEntry) throws IOException {
-        APICallScanner scanner = new APICallScanner(context);
+        APIScanner scanner = new APIScanner(context);
 //
         InputStream is = null;
         InputStreamReader isr = null;

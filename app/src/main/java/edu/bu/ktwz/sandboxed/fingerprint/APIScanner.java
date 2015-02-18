@@ -24,7 +24,7 @@ import java.util.Set;
  */
 
 //TODO not everything has a constructor like Sensor.class, how to get instance of this?
-public class APICallScanner {
+public class APIScanner {
 
     public interface ScanProgressListener {
         public void onClassScanned(String className);
@@ -35,16 +35,16 @@ public class APICallScanner {
     private ScanProgressListener listener;
     public static int NATIVE_COUNT = 0;
 
-    private static final String TAG = APICallScanner.class.getName();
+    private static final String TAG = APIScanner.class.getName();
   //  private final Logger log = Logger.getLogger(Discover.class);
     private Context context;
 
    // private Hashtable<String, String> api;
 
-    public APICallScanner(Context context){
+    public APIScanner(Context context){
         this(context, new Hashtable<String, String>());
     }
-    public APICallScanner(Context context, Hashtable<String, String> api) {
+    public APIScanner(Context context, Hashtable<String, String> api) {
         this.context = context;
      //   this.api = api;
     }
@@ -146,7 +146,9 @@ public class APICallScanner {
                         Log.d(TAG, "Native " + fullName);
                         NATIVE_COUNT++;
                         continue;
-                    } else if (isSimpleReturnType(returnType)) {
+                    }
+
+                    if (isSimpleReturnType(returnType)) {
                         Object o = methods[i].invoke(instance);
 
                         String value = (o == null) ? "null" : o.toString();
@@ -297,12 +299,15 @@ public class APICallScanner {
         } catch (IllegalAccessException e){
             String message = (e.getMessage() == null)? "Error for " + clazz.getName() : clazz.getName()  + ":" + e.getMessage();
            //Log.e(TAG, message);
-        } catch (InvocationTargetException e){
-            String message = (e.getMessage() == null)? "Error for " + clazz.getName() : clazz.getName()  + ":" + e.getMessage();
+        } catch (InvocationTargetException e) {
+            String message = (e.getMessage() == null) ? "Error for " + clazz.getName() : clazz.getName() + ":" + e.getMessage();
             //Log.e(TAG, message);
+        } catch (IllegalStateException e){
+
         } catch (RuntimeException e){
 
         }
+
         return newInstance;
     }
 

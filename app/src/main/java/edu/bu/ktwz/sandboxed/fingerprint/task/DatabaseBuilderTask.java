@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
 
 import edu.bu.ktwz.sandboxed.R;
-import edu.bu.ktwz.sandboxed.fingerprint.APICallScanner;
+import edu.bu.ktwz.sandboxed.fingerprint.APIScanner;
 import edu.bu.ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
 import edu.bu.ktwz.sandboxed.fingerprint.ServiceScanner;
 
@@ -41,7 +41,7 @@ public class DatabaseBuilderTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
 
-        APICallScanner.NATIVE_COUNT=0;
+        APIScanner.NATIVE_COUNT=0;
         Looper.prepare(); //Prevent RTE cant create handler without calling looper.prepare
 
 
@@ -77,7 +77,7 @@ public class DatabaseBuilderTask extends AsyncTask<Void, Void, Void> {
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
         );
         Log.d(TAG, "Scan lapse time " + lapse);
-        Log.d(TAG, "Native count= " + APICallScanner.NATIVE_COUNT);
+        Log.d(TAG, "Native count= " + APIScanner.NATIVE_COUNT);
         return null;
     }
 

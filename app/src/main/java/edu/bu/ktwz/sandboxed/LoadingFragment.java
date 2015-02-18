@@ -4,6 +4,7 @@ package edu.bu.ktwz.sandboxed;
 import android.app.Activity;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import edu.bu.ktwz.sandboxed.fingerprint.OfflineSpiceService;
 import edu.bu.ktwz.sandboxed.request.APIFingerprintRequest;
 import edu.bu.ktwz.sandboxed.request.AndroidFrameworkClassListRequest;
 import edu.bu.ktwz.sandboxed.request.PostScanRequest;
+import edu.bu.ktwz.sandboxed.request.ServiceFingerprintRequest;
 import roboguice.fragment.provided.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -110,13 +112,15 @@ public class LoadingFragment extends RoboFragment {
         @Override
         public void onRequestSuccess(List classes) {
            // progressBar.setProgress(10);
+
+            //Doesnt include service count
             progressBar.setMax(classes.size());
             beginScan(classes);
 
         }
 
         private void beginScan(List classes){
-            int groups = 1;
+            int groups = getResources().getInteger(R.integer.num_threads);
             int size = (int) Math.ceil(((double)classes.size())/((double)groups));
             for (int i=0; i< groups; i++){
                 int start = i*size;
@@ -125,6 +129,11 @@ public class LoadingFragment extends RoboFragment {
                         new FingerprintScanResultListener());
                 numberTasks++;
             }
+
+            spiceManager.execute(new ServiceFingerprintRequest(getActivity().getApplicationContext()),
+                    new FingerprintScanResultListener());
+            numberTasks++;
+
         }
     }
 
@@ -176,11 +185,22 @@ public class LoadingFragment extends RoboFragment {
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(lapse)));
 
             details+= timeDetails;
+
+            String countDetails = getString(R.string.message_fingerprint_count, fingerprints.size());
+
+            details+= "\n" + countDetails;
+
             if (message != null){
-                details += " " + message;
+                details += "\n" + message;
             }
             messageDetails.setText(details);
-            callback.onLoadSuccess();
+
+            //Allow to stay visibile for a second
+            Handler handlerTimer = new Handler();
+            handlerTimer.postDelayed(new Runnable(){
+                public void run() {
+                    callback.onLoadSuccess();
+                }}, 1000);
         }
     }
 }

@@ -1,5 +1,10 @@
 package edu.bu.ktwz.sandboxed;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.Fragment;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
@@ -8,6 +13,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.persistence.exception.SpiceException;
+import com.octo.android.robospice.request.listener.RequestListener;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -15,8 +24,10 @@ import java.lang.Override;
 
 import edu.bu.ktwz.sandboxed.LoadingFragment;
 import edu.bu.ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
+import edu.bu.ktwz.sandboxed.fingerprint.OfflineSpiceService;
 import edu.bu.ktwz.sandboxed.fingerprint.task.ScannerTask;
 import edu.bu.ktwz.sandboxed.model.APICall;
+import edu.bu.ktwz.sandboxed.request.ExportRequest;
 import roboguice.activity.RoboActivity;
 
 
@@ -25,6 +36,9 @@ import roboguice.activity.RoboActivity;
 public class MainActivity extends RoboActivity implements LoadingFragment.LoadCallback{
 
     private static final String TAG = MainActivity.class.getName();
+    private static final String EXTRA_EXPORT_PATH = "EXTRA_EXPORT_PATH";
+    private static final String DIALOG_TAG = "DIALOG_TAG";
+    private SpiceManager spiceManager = new SpiceManager(OfflineSpiceService.class);
 
     @Override
     public void onCreate(Bundle savedInstanceState){
@@ -32,7 +46,7 @@ public class MainActivity extends RoboActivity implements LoadingFragment.LoadCa
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
 
-            Fragment f = (APICall.isEmpty()) ? new LoadingFragment() : new FingerprintFragment()
+            Fragment f = (APICall.isEmpty()) ? new LoadingFragment() : new FingerprintFragment();
 
             getFragmentManager().beginTransaction()
                     .add(R.id.container, f)
@@ -40,6 +54,16 @@ public class MainActivity extends RoboActivity implements LoadingFragment.LoadCa
         }
     }
 
+    @Override
+    protected void onStart() {
+        spiceManager.start( this );
+        super.onStart();
+    }
+    @Override
+    protected void onStop() {
+        spiceManager.shouldStop();
+        super.onStop();
+    }
 
 
     @Override
@@ -83,62 +107,69 @@ public class MainActivity extends RoboActivity implements LoadingFragment.LoadCa
     }
 
     private void exportDatabase(){
-
-        if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())){
-            Toast.makeText(this, "External SD card not mounted", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        //TODO add some sort of loading thing
-        FileOutputStream fos = null;
-        File file = new AndroidFrameworkFileIO(this).getExportFile();
-
-        try {
-            fos = new FileOutputStream(file);
-
-            Cursor cursor = APICall.fetchResultCursor();
-            cursor.moveToFirst();
-            while(cursor.isAfterLast() == false){
-                String callName = cursor.getString(cursor.getColumnIndexOrThrow("class"));
-                String value = cursor.getString(cursor.getColumnIndexOrThrow("value"));
-
-                String line = callName + "=" + value + "\n";
-                fos.write(line.getBytes());
-
-                cursor.moveToNext();
-            }
-            cursor.close();
-
-            String path = getResources().getString(R.string.message_export_finish);
-            String notification = String.format(path,file.getAbsolutePath());
-            Toast.makeText(getApplicationContext(),notification, Toast.LENGTH_LONG  ).show();
-
-        } catch (IOException e){
-            Log.e(TAG, e.getMessage());
-            Toast.makeText(getApplicationContext(),e.getMessage(), Toast.LENGTH_LONG  ).show();
-
-        } finally {
-            if (fos != null){
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-
+        spiceManager.execute(new ExportRequest(getApplicationContext()), new ExportResultListener());
     }
 
 
-    @Override
+    private class ExportResultListener implements RequestListener<String> {
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
+            Toast.makeText(MainActivity.this, "External SD card not mounted", Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onRequestSuccess(String message) {
+
+            if (message == null){ //Something bad happened
+                return;
+            }
+            String path = getResources().getString(R.string.message_export_finish);
+            String notification = String.format(path,message);
+
+            DialogFragment df = (DialogFragment) getFragmentManager().findFragmentByTag(DIALOG_TAG);
+            if (df == null){
+                df = ConfirmDialogFragment.newInstance(notification);
+            }
+            df.show(getFragmentManager(), DIALOG_TAG);
+        }
+    }
+
+            @Override
     public void onLoadSuccess() {
-        getFragmentManager().beginTransaction().replace(R.id.container,new FingerprintFragment())
+        getFragmentManager().beginTransaction().replace(R.id.container,new FingerprintFragment()).commit();
 
     }
 
     @Override
     public void onLoadFailure() {
 
+    }
+
+    public static class ConfirmDialogFragment extends DialogFragment {
+
+        public static DialogFragment newInstance(String path){
+            Bundle b = new Bundle();
+            b.putString(EXTRA_EXPORT_PATH, path);
+            DialogFragment df = new ConfirmDialogFragment();
+            df.setArguments(b);
+            return df;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String path = getArguments().getString(EXTRA_EXPORT_PATH);
+
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(path)
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // FIRE ZE MISSILES!
+                        }
+                    });
+
+            // Create the AlertDialog object and return it
+            return builder.create();
+        }
     }
 }

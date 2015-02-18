@@ -9,30 +9,31 @@ import java.util.Hashtable;
 import java.util.List;
 
 import edu.bu.ktwz.sandboxed.fingerprint.APIScanner;
+import edu.bu.ktwz.sandboxed.fingerprint.ServiceScanner;
 
 /**
  * Created by wil on 2/16/15.
  */
-public class APIFingerprintRequest extends SpiceRequest<Hashtable> {
+public class ServiceFingerprintRequest extends SpiceRequest<Hashtable> {
     private final WeakReference<Context> contextReference;
     private List<String> classes;
-    public APIFingerprintRequest(Context context, List<String> classes){
+    public ServiceFingerprintRequest(Context context){
         super(Hashtable.class);
         this.contextReference = new WeakReference<Context>(context);
-        this.classes = classes;
     }
     @Override
     public Hashtable<String, String> loadDataFromNetwork() throws Exception {
-        APIScanner generalAPIScan = new APIScanner(contextReference.get());
-        generalAPIScan.setScanListener(new APIScanner.ScanProgressListener() {
+        ServiceScanner services = new ServiceScanner(contextReference.get());
+        services.setScanListener(new APIScanner.ScanProgressListener() {
             @Override
             public void onClassScanned(String className) {
                 publishProgress();
             }
         });
-        generalAPIScan.fullScan(classes);
 
-        return generalAPIScan.getResults();
+        services.scan();
+
+        return services.getResults();
     }
 
 }

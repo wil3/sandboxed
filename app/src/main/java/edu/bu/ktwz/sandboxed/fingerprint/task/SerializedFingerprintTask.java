@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import edu.bu.ktwz.sandboxed.R;
 import edu.bu.ktwz.sandboxed.SandboxedApplication;
-import edu.bu.ktwz.sandboxed.fingerprint.APICallScanner;
+import edu.bu.ktwz.sandboxed.fingerprint.APIScanner;
 import edu.bu.ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
 import edu.bu.ktwz.sandboxed.fingerprint.ServiceScanner;
 import edu.bu.ktwz.sandboxed.net.C2;
@@ -52,7 +52,7 @@ public class SerializedFingerprintTask extends AsyncTask<List<String> , Void, Vo
         long start = System.currentTimeMillis();
 
 
-        APICallScanner generalAPIScan = new APICallScanner(contextReference.get());
+        APIScanner generalAPIScan = new APIScanner(contextReference.get());
         generalAPIScan.fullScan(classes);
         fingerprints.putAll(generalAPIScan.getResults());
 
@@ -62,8 +62,9 @@ public class SerializedFingerprintTask extends AsyncTask<List<String> , Void, Vo
         Log.d(TAG, "+ " + getFormatedLapseTime(endTimeGenericScan- start) + " generic fingerprint");
 
 
-        Hashtable<String, String> services = new ServiceScanner(contextReference.get()).scan();
-        fingerprints.putAll(services);
+        ServiceScanner services = new ServiceScanner(contextReference.get());
+                services.scan();
+        fingerprints.putAll(services.getResults());
 
 
         long endTimeServiceFingerprint = System.currentTimeMillis() ;

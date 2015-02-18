@@ -7,7 +7,7 @@ import android.os.Looper;
 import java.util.List;
 
 import edu.bu.ktwz.sandboxed.R;
-import edu.bu.ktwz.sandboxed.fingerprint.APICallScanner;
+import edu.bu.ktwz.sandboxed.fingerprint.APIScanner;
 import edu.bu.ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
 
 /**
@@ -37,7 +37,7 @@ public class ScannerTask extends AsyncTask<Void, Void, Void> {
 
         List<String> classList = d.loadPreloadedClassList(preloadedClassFilename);
 
-        APICallScanner scanner = new APICallScanner(context);
+        APIScanner scanner = new APIScanner(context);
         scanner.fullScan(classList);
 
         return null;
