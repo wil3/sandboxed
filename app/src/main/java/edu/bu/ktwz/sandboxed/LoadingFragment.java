@@ -3,7 +3,6 @@ package edu.bu.ktwz.sandboxed;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,11 +27,11 @@ import edu.bu.ktwz.sandboxed.request.APIFingerprintRequest;
 import edu.bu.ktwz.sandboxed.request.AndroidFrameworkClassListRequest;
 import edu.bu.ktwz.sandboxed.request.PostScanRequest;
 import edu.bu.ktwz.sandboxed.request.ServiceFingerprintRequest;
-import roboguice.fragment.provided.RoboFragment;
+import roboguice.fragment.RoboSherlockFragment;
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
 /**
- * A simple {@link Fragment} subclass.
  */
 public class LoadingFragment extends RoboFragment {
 
@@ -129,6 +128,7 @@ public class LoadingFragment extends RoboFragment {
                         new FingerprintScanResultListener());
                 numberTasks++;
             }
+
 
             spiceManager.execute(new ServiceFingerprintRequest(getActivity().getApplicationContext()),
                     new FingerprintScanResultListener());

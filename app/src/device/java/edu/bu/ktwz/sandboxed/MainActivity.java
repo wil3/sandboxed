@@ -3,11 +3,11 @@ package edu.bu.ktwz.sandboxed;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,12 +28,11 @@ import edu.bu.ktwz.sandboxed.fingerprint.OfflineSpiceService;
 import edu.bu.ktwz.sandboxed.fingerprint.task.ScannerTask;
 import edu.bu.ktwz.sandboxed.model.APICall;
 import edu.bu.ktwz.sandboxed.request.ExportRequest;
-import roboguice.activity.RoboActivity;
+import roboguice.activity.RoboFragmentActivity;
 
 
-//@ContentView(R.layout.activity_main)
-
-public class MainActivity extends RoboActivity implements LoadingFragment.LoadCallback{
+//@ContentView(R.layout.activity_main
+public class MainActivity extends RoboFragmentActivity implements LoadingFragment.LoadCallback{
 
     private static final String TAG = MainActivity.class.getName();
     private static final String EXTRA_EXPORT_PATH = "EXTRA_EXPORT_PATH";
@@ -48,7 +47,7 @@ public class MainActivity extends RoboActivity implements LoadingFragment.LoadCa
 
             Fragment f = (APICall.isEmpty()) ? new LoadingFragment() : new FingerprintFragment();
 
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, f)
                     .commit();
         }
@@ -136,7 +135,7 @@ public class MainActivity extends RoboActivity implements LoadingFragment.LoadCa
 
             @Override
     public void onLoadSuccess() {
-        getFragmentManager().beginTransaction().replace(R.id.container,new FingerprintFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container,new FingerprintFragment()).commit();
 
     }
 

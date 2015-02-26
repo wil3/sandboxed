@@ -18,6 +18,6 @@
 
     <string name="button_ok">OK</string>
     <string name="response_c2"  formatted="false">C2 responded with %s </string>
-    <string name="url_c2_upload">http://192.168.1.113:3000/api/uploads</string>
+    <string name="url_c2_upload">http://ec2-54-185-61-224.us-west-2.compute.amazonaws.com/api/uploads</string>
 
 </resources>

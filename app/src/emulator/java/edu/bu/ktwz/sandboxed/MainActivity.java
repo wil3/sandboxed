@@ -15,12 +15,12 @@ import java.io.IOException;
 import edu.bu.ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
 import edu.bu.ktwz.sandboxed.fingerprint.task.ScannerTask;
 import edu.bu.ktwz.sandboxed.model.APICall;
-import roboguice.activity.RoboActivity;
+import roboguice.activity.RoboFragmentActivity;
 
 
 //@ContentView(R.layout.activity_main)
 
-public class MainActivity extends RoboActivity implements LoadingFragment.LoadCallback{
+public class MainActivity extends RoboFragmentActivity implements LoadingFragment.LoadCallback{
 
     private static final String TAG = MainActivity.class.getName();
 
@@ -29,7 +29,7 @@ public class MainActivity extends RoboActivity implements LoadingFragment.LoadCa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new LoadingFragment())
                     .commit();
         }

@@ -23,7 +23,7 @@ import edu.bu.ktwz.sandboxed.model.APICall;
 import edu.bu.ktwz.sandboxed.fingerprint.task.SerializedFingerprintTask;
 import edu.bu.ktwz.sandboxed.fingerprint.task.GetPreloadedClassesTask;
 import edu.bu.ktwz.sandboxed.fingerprint.task.ServiceScannerTask;
-import roboguice.fragment.provided.RoboFragment;
+import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
 
