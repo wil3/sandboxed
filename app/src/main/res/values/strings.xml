@@ -15,9 +15,15 @@
     <string name="message_lapse" formatted="false">Scan completed in %d min, %d sec.</string>
     <string name="message_fingerprint_count" formatted="false">%d fingerprints taken.</string>
     <string name="message_fingerprint_finish">Fingerprinting Complete!</string>
-
+    <string name="message_ping_failed">Could not reach C2</string>
     <string name="button_ok">OK</string>
     <string name="response_c2"  formatted="false">C2 responded with %s </string>
-    <string name="url_c2_upload">http://ec2-54-185-61-224.us-west-2.compute.amazonaws.com/api/uploads</string>
+    <!--<string name="url_c2">http://ec2-54-185-61-224.us-west-2.compute.amazonaws.com</string>-->
+    <string name="url_c2">http://192.168.1.113:3000</string>
+
+    <string name="url_c2_upload" formatted="false">%s/api/uploads</string>
+    <string name="url_c2_ping" formatted="false">%s/api/ping</string>
+
+    <string name="response_ping_ok">pong</string>
 
 </resources>

@@ -88,6 +88,9 @@
         <service
             android:name="edu.bu.ktwz.sandboxed.fingerprint.OfflineSpiceService"
             android:exported="false" />
+        <service
+            android:name="com.octo.android.robospice.UncachedSpiceService"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.octo.android.robospice.SpiceManager;
+import com.octo.android.robospice.UncachedSpiceService;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 import com.octo.android.robospice.request.listener.RequestProgress;
@@ -21,13 +22,12 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import edu.bu.ktwz.sandboxed.R;
 import edu.bu.ktwz.sandboxed.fingerprint.OfflineSpiceService;
 import edu.bu.ktwz.sandboxed.request.APIFingerprintRequest;
 import edu.bu.ktwz.sandboxed.request.AndroidFrameworkClassListRequest;
+import edu.bu.ktwz.sandboxed.request.PingRequest;
 import edu.bu.ktwz.sandboxed.request.PostScanRequest;
 import edu.bu.ktwz.sandboxed.request.ServiceFingerprintRequest;
-import roboguice.fragment.RoboSherlockFragment;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -35,12 +35,15 @@ import roboguice.inject.InjectView;
  */
 public class LoadingFragment extends RoboFragment {
 
+    private static final String TAG = LoadingFragment.class.getName();
+
     public interface LoadCallback {
         public void onLoadSuccess();
         public void onLoadFailure();
     }
-    private SpiceManager spiceManager = new SpiceManager(OfflineSpiceService.class);
-
+    private SpiceManager spiceManager = new MySpiceManager(OfflineSpiceService.class);
+    private SpiceManager spiceManagerOnline = new SpiceManager(
+            UncachedSpiceService.class);
 
     private long startTime;
     private final Hashtable<String, String> fingerprints = new Hashtable<String, String>();
@@ -82,7 +85,6 @@ public class LoadingFragment extends RoboFragment {
     @Override
     public void onViewCreated(View view, Bundle savedState){
         super.onViewCreated(view, savedState);
-        progressBar.setMax(100);
     }
     @Override
     public void onStart() {
@@ -90,8 +92,16 @@ public class LoadingFragment extends RoboFragment {
         startTime = System.currentTimeMillis();
 
         spiceManager.start(getActivity());
-        spiceManager.execute(new AndroidFrameworkClassListRequest(getActivity().getApplicationContext()),
-                new AndroidFrameworkClassListResultListener());
+        spiceManagerOnline.start(getActivity());
+
+        String flavor = getString(R.string.flavor);
+        if (flavor.equals(SandboxedApplication.FLAVOR_REMOTE)) {
+            spiceManagerOnline.execute(new PingRequest(getActivity().getApplicationContext()),
+                    new PingListener());
+        } else {
+            spiceManager.execute(new AndroidFrameworkClassListRequest(getActivity().getApplicationContext()),
+                    new AndroidFrameworkClassListResultListener());
+        }
     }
 
     @Override
@@ -99,11 +109,36 @@ public class LoadingFragment extends RoboFragment {
         if (spiceManager.isStarted()) {
             spiceManager.shouldStop();
         }
+        if (spiceManagerOnline.isStarted()) {
+            spiceManagerOnline.shouldStop();
+        }
         super.onStop();
     }
 
+    private class PingListener implements RequestListener<String> {
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
+            messageDetails.setText(R.string.message_ping_failed);
+        }
 
-    private class AndroidFrameworkClassListResultListener implements RequestListener<List> {
+        @Override
+        public void onRequestSuccess(String message) {
+
+            Log.d(TAG, "Received " + message + " from C2");
+            String ok = getString(R.string.response_ping_ok);
+            if (message.equals(ok)){
+                spiceManager.execute(new AndroidFrameworkClassListRequest(getActivity().getApplicationContext()),
+                        new AndroidFrameworkClassListResultListener());
+            } else {
+                messageDetails.setText(R.string.message_ping_failed);
+            }
+        }
+    }
+
+            private class AndroidFrameworkClassListResultListener implements RequestListener<List> {
+
+        int theEnd = 1100;
+        int theStart = 0;
         @Override
         public void onRequestFailure(SpiceException spiceException) {
         }
@@ -111,7 +146,7 @@ public class LoadingFragment extends RoboFragment {
         @Override
         public void onRequestSuccess(List classes) {
            // progressBar.setProgress(10);
-
+            Log.d("loading", "Size " + classes.size());
             //Doesnt include service count
             progressBar.setMax(classes.size());
             beginScan(classes);
@@ -131,7 +166,7 @@ public class LoadingFragment extends RoboFragment {
 
 
             spiceManager.execute(new ServiceFingerprintRequest(getActivity().getApplicationContext()),
-                    new FingerprintScanResultListener());
+                   new FingerprintScanResultListener());
             numberTasks++;
 
         }

@@ -1,21 +1,8 @@
 package edu.bu.ktwz.sandboxed;
 
-import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import edu.bu.ktwz.sandboxed.fingerprint.AndroidFrameworkFileIO;
-import edu.bu.ktwz.sandboxed.fingerprint.task.ScannerTask;
-import edu.bu.ktwz.sandboxed.model.APICall;
-import roboguice.activity.RoboActivity;
+import edu.bu.ktwz.sandboxed.fingerprint.task.SerializedFingerprint2Task;
 import roboguice.activity.RoboFragmentActivity;
 
 
@@ -30,9 +17,13 @@ public class MainActivity extends RoboFragmentActivity implements LoadingFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
+
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new LoadingFragment())
                     .commit();
+
+       //     SerializedFingerprint2Task task = new SerializedFingerprint2Task(getApplicationContext(), null);
+         //   task.execute();
         }
     }
 

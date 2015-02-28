@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -31,15 +32,10 @@ public class APIScanner {
     }
 
     private final Hashtable<String,String> fingerprints = new Hashtable<String, String>();
-
     private ScanProgressListener listener;
     public static int NATIVE_COUNT = 0;
-
     private static final String TAG = APIScanner.class.getName();
-  //  private final Logger log = Logger.getLogger(Discover.class);
     private Context context;
-
-   // private Hashtable<String, String> api;
 
     public APIScanner(Context context){
         this(context, new Hashtable<String, String>());
@@ -54,14 +50,36 @@ public class APIScanner {
             fullScan(classList.get(i));
         }
     }
+    private static int i=0;
+
     public void fullScan(List<String> classList){
+
 
         for (String className : classList) { //These are the full class names
             if (listener != null){
                 listener.onClassScanned(className);
             }
+            Log.d(TAG, i +"  " + className);
+
             fullScan(className);
+          //  System.gc();
+            try {
+                Thread.sleep(0);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            i++;
         }
+         /*
+        for (int i=0; i<classList.size();i++){
+            if (listener != null){
+                listener.onClassScanned(classList.get(500));
+            }
+            Log.d(TAG, i +"  " );
+
+            fullScan(classList.get(500));
+
+        } */
     }
 
     public void setScanListener(ScanProgressListener listener){
@@ -91,7 +109,14 @@ public class APIScanner {
      */
     public void processMethods(Class clazz, Object instance, List<String> recurseStack){
        // if (!shouldAcceptClass(clazz)) return;
-
+        if (clazz.getName().equals("android.os.BinderProxy")){
+            /*
+             * THE BUG IVE BEEN SEARCHING FOR ALL AFTERNOON
+             * For some reason when this class is attempted to be initialized via reflection it
+             * crashes the entire system on API 10, other tested seem to handle it fine.
+             */
+            return;
+        }
         if (recurseStack == null){
             recurseStack = new ArrayList<String>();
         }
@@ -119,6 +144,10 @@ public class APIScanner {
                 continue;
             }
 
+           // if (clazz.getName().contains("android.view") || clazz.getName().contains("android.widget")){
+           //     continue;
+          //  }
+
             Class returnType = methods[i].getReturnType();
             Class [] parameterTypes = methods[i].getParameterTypes();
             String fullName = clazz.getName() + "." + methodName + "()";
@@ -130,20 +159,14 @@ public class APIScanner {
                 if (parameterTypes.length == 0 && shouldAcceptMethod(methodName) && !hasVoidReturnType(returnType)) {
 
 
-                    int modifiers = methods[i].getModifiers();
-                    boolean isNative = Modifier.isNative(modifiers);
+                    Log.d(TAG, getSpaces(recurseStack.size()) + returnType.getSimpleName() + ":" + fullName);
 
-                    boolean set = false;
 
-                    if (set && isNative) {
-                        NATIVE_COUNT++;
-//                        Log.d(TAG, "Skipping...native");
-                        //  continue;
-                    }
+
 
                     if (Modifier.isNative(methods[i].getModifiers())){
                         //
-                        Log.d(TAG, "Native " + fullName);
+                        //Log.d(TAG, "Native " + fullName);
                         NATIVE_COUNT++;
                         continue;
                     }
@@ -156,8 +179,6 @@ public class APIScanner {
                         write(fullName, value);
 
 
-//                         Log.d(TAG, fullName + "=" + value);
-                        set = true;
                     } else if (returnType.isArray()){
 
                         Object[] o = (Object [] )methods[i].invoke(instance);
@@ -170,7 +191,6 @@ public class APIScanner {
                                 write(fullName, value);
 //                                Log.d(TAG, fullName + "=" + value);
 
-                                set = true;
                             } else {
                                 /*
                                 Log.d(TAG, "RECURSIVE " + o[x].getClass().getName());
@@ -194,7 +214,6 @@ public class APIScanner {
                                     String value = (o == null) ? "null" : o.toString();
 
                                    write(fullName, value);
-                                    set = true;
 //                                    Log.d(TAG, fullName + "=" + value);
 
                                 } else {
@@ -209,6 +228,8 @@ public class APIScanner {
                         }
                     } else if (shouldRecurse(clazz, returnType) &&
                             !methods[i].getName().contains("Instance")) { //Prevent loops
+
+/*
                         //An object
                         Object o = methods[i].invoke(instance);
 
@@ -218,6 +239,7 @@ public class APIScanner {
                             processClassMembers(o.getClass());
                             processMethods(o.getClass(), o, recurseStack);
                         }
+*/
                     }
 
 
@@ -233,17 +255,19 @@ public class APIScanner {
 //                Log.e(TAG, message);
             }
         }
+        instance = null;
     }
 
-    private static Object lock = new Object();
+    private String getSpaces(int n){
+        String spaces = "";
+        for (int i=0; i<n; i++){
+            spaces+="  ";
+        }
+        return spaces;
+    }
 
     private void write(String key, String value){
-     //   APICall call = new APICall(key, value);
-    //    call.save();
-        synchronized(lock)
-        {
-            fingerprints.put(key, value);
-        }
+        fingerprints.put(key, value);
     }
 
     public Hashtable<String,String> getResults(){
