@@ -11,6 +11,14 @@ Features:
 * Device flavor includes search and filter capabilities
 
 
+Configuration
+-------------
+To remote fingerprint a device configure url_c2 property with the url of your command and control server in:
+
+```
+app/src/main/res/values/strings.xml
+```
+
 License
 -------
 
