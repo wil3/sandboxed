@@ -1,18 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="edu.bu.ktwz.sandboxed" >
+    package="edu.bu.sandboxed" >
 
     <!-- To export files -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- To drop on remote server -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
-    <!-- For service finger printing -->
+
+    <!-- For service finger printing
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.BATTERY_STATS"/>
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"/>
@@ -55,7 +56,7 @@
     <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.SUBSCRIBED_FEEDS_READ"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
-
+-->
 
     <application
         android:name="com.activeandroid.app.Application"
@@ -86,7 +87,7 @@
         </activity>
 
         <service
-            android:name="edu.bu.ktwz.sandboxed.fingerprint.OfflineSpiceService"
+            android:name=".OfflineSpiceService"
             android:exported="false" />
         <service
             android:name="com.octo.android.robospice.UncachedSpiceService"

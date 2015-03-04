@@ -21,11 +21,12 @@ Configuration
 -------------
 To remote fingerprint a device:
 
-1. Configure `url_c2` property with the url of your command and control server in:
-`app/src/main/res/values/strings.xml`
-2. To do a full scan set value `simple_scan` in `app/src/main/res/values/bools.xml` to false.
-3. If you want to do a simple scan set `simple_scan` to true and then add the classes to scan in the `fp` property in
-`app/src/main/res/values/strings.xml`. Reasons to do a simple scan may be due to time restraints of the remote device.
+1. Use this [command and control]{https://github.com/wil3/drop_server}, or use your own and implement the same API
+1. Configure *url_c2* property with the url of your command and control server in:
+*app/src/main/res/values/strings.xml*
+2. To do a full scan set value *simple_scan* in *app/src/main/res/values/bools.xml* to false.
+3. If you want to do a simple scan set *simple_scan* to true and then add the classes to scan in the *fp* property in
+*app/src/main/res/values/strings.xml*. Reasons to do a simple scan may be due to time restraints of the remote device.
 
 Future Work
 -----------

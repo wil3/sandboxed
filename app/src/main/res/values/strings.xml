@@ -18,12 +18,15 @@
     <string name="message_ping_failed">Could not reach C2</string>
     <string name="button_ok">OK</string>
     <string name="response_c2"  formatted="false">C2 responded with %s </string>
-    <!--<string name="url_c2">http://ec2-54-185-61-224.us-west-2.compute.amazonaws.com</string>-->
-    <string name="url_c2">http://192.168.1.113:3000</string>
-
-    <string name="url_c2_upload" formatted="false">%s/api/uploads</string>
+    
+    <string name="url_c2"></string>
+    <string name="url_c2_upload" formatted="false">%s/api/drop</string>
     <string name="url_c2_ping" formatted="false">%s/api/ping</string>
-
+    <string name="url_c2_post" formatted="false">%s/api/scan</string>
     <string name="response_ping_ok">pong</string>
 
+    
+    <string-array name="fp">
+        <item>android.os.Build</item>
+    </string-array>
 </resources>
