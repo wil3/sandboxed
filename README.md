@@ -1,23 +1,39 @@
 # Sandboxed
 
-Android app to finger print an environment.
+Android app to fingerprint an environment. 
+This project has been a response to recent environment-sensitive Android apps checking if they are running in an emulator or device. 
+If the malware detects its running environment as an emulator there is a high probability it is being analyzed in a sandbox. 
+This app takes multiple different fingerprints of the environment. 
+The goal is to develope in tandumm an emulator that is indistinguishable from a real device to malware.
+This research is in collaboration with [Allan Wirth]{https://github.com/allanlw}, [AJ Trainor]{https://github.com/lk86}, [Guanchen Zhang]{https://github.com/naghceuz}.
 
 Features:
 --------
 * 3 flavors for use on different devices (remote, emulator, device)
 * Command and control support for remote fingerprinting
 * Multi-threaded scanning
-* Automated scanning of Android API and services via reflection
+* Automated scanning of Android API and services via reflection, services disabled by default because of permission requirements
 * Device flavor includes search and filter capabilities
+
 
 
 Configuration
 -------------
-To remote fingerprint a device configure url_c2 property with the url of your command and control server in:
+To remote fingerprint a device:
 
-```
-app/src/main/res/values/strings.xml
-```
+1. Configure `url_c2` property with the url of your command and control server in:
+`app/src/main/res/values/strings.xml`
+2. To do a full scan set value `simple_scan` in `app/src/main/res/values/bools.xml` to false.
+3. If you want to do a simple scan set `simple_scan` to true and then add the classes to scan in the `fp` property in
+`app/src/main/res/values/strings.xml`. Reasons to do a simple scan may be due to time restraints of the remote device.
+
+Future Work
+-----------
+* Perform automated detection of running environment.
+* File detection
+* Timing detection
+* APK, SD card, contact list, etc detection
+
 
 License
 -------
