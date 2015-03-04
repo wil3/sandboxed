@@ -5,7 +5,7 @@ This project has been a response to recent environment-sensitive Android apps ch
 If the malware detects its running environment as an emulator there is a high probability it is being analyzed in a sandbox. 
 This app takes multiple different fingerprints of the environment. 
 The goal is to develope in tandumm an emulator that is indistinguishable from a real device to malware.
-This research is in collaboration with [Allan Wirth]{https://github.com/allanlw}, [AJ Trainor]{https://github.com/lk86}, [Guanchen Zhang]{https://github.com/naghceuz}.
+This research is in collaboration with [Allan Wirth](https://github.com/allanlw), [AJ Trainor](https://github.com/lk86), [Guanchen Zhang](https://github.com/naghceuz).
 
 Features:
 --------
@@ -21,7 +21,7 @@ Configuration
 -------------
 To remote fingerprint a device:
 
-1. Use this [command and control]{https://github.com/wil3/drop_server}, or use your own and implement the same API
+1. Use this [command and control](https://github.com/wil3/drop_server), or use your own and implement the same API
 1. Configure *url_c2* property with the url of your command and control server in:
 *app/src/main/res/values/strings.xml*
 2. To do a full scan set value *simple_scan* in *app/src/main/res/values/bools.xml* to false.
