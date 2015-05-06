@@ -45,6 +45,7 @@ repositories {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:support-v4:19.+'
+    //Access
     compile 'org.roboguice:roboguice:3.+'
     provided 'org.roboguice:roboblender:3.+'
 
@@ -52,7 +53,12 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
    // compile 'de.mindpipe.android:android-logging-log4j:1.0.2'
    // compile 'log4j:log4j:1.2.16'
+
+
+    //ActiveAndroid is an active record style ORM
     compile 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+
+    //For asyc tasks to run in background
     compile ('com.octo.android.robospice:robospice:1.4.5'){
         exclude module:'commons-lang3'
         exclude module: 'commons-io'

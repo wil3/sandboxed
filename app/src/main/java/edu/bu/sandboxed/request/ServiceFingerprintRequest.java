@@ -26,8 +26,28 @@ public class ServiceFingerprintRequest extends SpiceRequest<Hashtable> {
         ServiceScanner services = new ServiceScanner(contextReference.get());
         services.setScanListener(new APIScanner.ScanProgressListener() {
             @Override
-            public void onClassScanned(String className) {
+            public void onAfterClassScanned(String className) {
                 publishProgress();
+            }
+
+            @Override
+            public void onBeforeClassScanned(String className) {
+
+            }
+
+            @Override
+            public void onBeforeMethodInvoked(String className, String name) {
+
+            }
+
+            @Override
+            public void onAfterMethodInvoked(String className, String name) {
+
+            }
+
+            @Override
+            public void onValueReturned(String className, String name, String value) {
+
             }
         });
 

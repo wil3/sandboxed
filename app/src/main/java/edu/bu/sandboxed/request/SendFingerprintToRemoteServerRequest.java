@@ -19,7 +19,6 @@
 package edu.bu.sandboxed.request;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.octo.android.robospice.request.SpiceRequest;
 
@@ -42,13 +41,18 @@ import edu.bu.sandboxed.fingerprint.APIScanner;
 import flexjson.JSONSerializer;
 
 /**
+ * Scan only a select number of classes specified by the fp string array and send the results
+ * to a remote server
+ *
  * Created by wil on 3/2/15.
  */
-public class SimpleFingerprintRequest extends SpiceRequest<Integer> {
+
+//TODO the type of scan should be a method that is specified
+public class SendFingerprintToRemoteServerRequest extends SpiceRequest<Integer> {
 
     private final WeakReference<Context> contextReference;
 
-    public SimpleFingerprintRequest(Context context){
+    public SendFingerprintToRemoteServerRequest(Context context){
         super(Integer.class);
         this.contextReference = new WeakReference<Context>(context);
 
@@ -77,7 +81,7 @@ public class SimpleFingerprintRequest extends SpiceRequest<Integer> {
         List classList = Arrays.asList(clazz);
 
         APIScanner generalAPIScan = new APIScanner(contextReference.get());
-        generalAPIScan.fullScan(classList);
+        generalAPIScan.scanClasses(classList);
         Hashtable<String,String> ht = generalAPIScan.getResults();
         String json = new JSONSerializer().serialize(ht);
         return json;

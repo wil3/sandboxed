@@ -27,95 +27,89 @@ import java.util.Set;
 public class APIScanner {
 
     public interface ScanProgressListener {
-        public void onClassScanned(String className);
+        public void onBeforeClassScanned(String className);
+        public void onAfterClassScanned(String className);
+        public void onBeforeMethodInvoked(String className, String name);
+        public void onAfterMethodInvoked(String className, String name);
+        public void onValueReturned(String className, String name, String value);
     }
-
+    private static final String TAG = APIScanner.class.getName();
+    public static int NATIVE_COUNT = 0;
+    private static int i=0;
     private final Hashtable<String,String> fingerprints = new Hashtable<String, String>();
     private ScanProgressListener listener;
-    public static int NATIVE_COUNT = 0;
-    private static final String TAG = APIScanner.class.getName();
     private Context context;
+
+    private List<String> excludes = null;
 
     public APIScanner(Context context){
         this(context, new Hashtable<String, String>());
     }
     public APIScanner(Context context, Hashtable<String, String> api) {
         this.context = context;
-     //   this.api = api;
     }
 
-    public void fullScan(List<String> classList, int offset, int count) {
-        for (int i=offset; i<offset + count; i++){
-            fullScan(classList.get(i));
-        }
-    }
-    private static int i=0;
 
-    public void fullScan(List<String> classList){
+    /**
+     * Perform a full fingerprint scan for the given classes
+     * @param classList
+     */
+    public void scanClasses(List<String> classList){
 
 
         for (String className : classList) { //These are the full class names
-            if (listener != null){
-                listener.onClassScanned(className);
-            }
-            Log.d(TAG, i +"  " + className);
 
-            fullScan(className);
-          //  System.gc();
-            try {
-                Thread.sleep(0);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+           // Log.d(TAG, i +"    " + className);
+            if (listener != null){
+                listener.onBeforeClassScanned(className);
+            }
+            scanClass(className);
+            if (listener != null){
+                listener.onAfterClassScanned(className);
             }
             i++;
         }
-         /*
-        for (int i=0; i<classList.size();i++){
-            if (listener != null){
-                listener.onClassScanned(classList.get(500));
-            }
-            Log.d(TAG, i +"  " );
-
-            fullScan(classList.get(500));
-
-        } */
     }
 
-    public void setScanListener(ScanProgressListener listener){
-        this.listener = listener;
+    public void setExcludes(List<String> methodsToExclude){
+        this.excludes = methodsToExclude;
     }
     /**
      * Scan and insert into database
      *
      * @param className
      */
-    public void fullScan(String className){
+    public void scanClass(String className){
 
-        try {
-            Class clazz = Class.forName(className);
-            processClassMembers(clazz);
-            processMethods(clazz, null,null);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+            processClassMembers(className);
+            processMethods(className, null,null);
+
     }
 
 
     /**
      *
-     * @param clazz
+     * @param
      * @param instance Instance to use for method calls, if null, one is attempted
      */
-    public void processMethods(Class clazz, Object instance, List<String> recurseStack){
-       // if (!shouldAcceptClass(clazz)) return;
-        if (clazz.getName().equals("android.os.BinderProxy")){
+    public void processMethods(String className, Object instance, List<String> recurseStack){
+        Class clazz = null;
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            return;
+        }
+
+
+        // if (!shouldAcceptClass(clazz)) return;
+        //if (clazz.getName().equals("android.os.BinderProxy")){
             /*
              * THE BUG IVE BEEN SEARCHING FOR ALL AFTERNOON
              * For some reason when this class is attempted to be initialized via reflection it
              * crashes the entire system on API 10, other tested seem to handle it fine.
              */
-            return;
-        }
+        //    return;
+        //}
         if (recurseStack == null){
             recurseStack = new ArrayList<String>();
         }
@@ -138,10 +132,10 @@ public class APIScanner {
             if (recurseStack.contains(methodName)){
                 continue;
             }
-
-            if(clazz.getSimpleName().equals("MediaExtractor") && methodName.equals("getCachedDuration")){
-                continue;
-            }
+            //TODO Cant do it this way...instead if a crash occurs skip the last one written
+           // if(clazz.getSimpleName().equals("MediaExtractor") && methodName.equals("getCachedDuration")){
+           //     continue;
+          //  }
 
            // if (clazz.getName().contains("android.view") || clazz.getName().contains("android.widget")){
            //     continue;
@@ -149,48 +143,54 @@ public class APIScanner {
 
             Class returnType = methods[i].getReturnType();
             Class [] parameterTypes = methods[i].getParameterTypes();
-            String fullName = clazz.getName() + "." + methodName + "()";
+            String fullName = clazz.getName() + "." + methodName;
 //            Log.d(TAG, returnType.getSimpleName() + ":" + fullName);
 
 
+            if (excludes.contains(fullName)){
+                Log.w(TAG, "Skipping " + fullName + " because it crashed the app before.");
+                continue;
+            }
             try {
                 //Its a primitive type and no parameters
                 if (parameterTypes.length == 0 && shouldAcceptMethod(methodName) && !hasVoidReturnType(returnType)) {
 
 
-                    Log.d(TAG, getSpaces(recurseStack.size()) + returnType.getSimpleName() + ":" + fullName);
-
-
+                    //Log.d(TAG, getSpaces(recurseStack.size()) + returnType.getSimpleName() + ":" + fullName);
 
 
                     if (Modifier.isNative(methods[i].getModifiers())){
-                        //
-                        //Log.d(TAG, "Native " + fullName);
+                        Log.d(TAG, "Native " + fullName);
                         NATIVE_COUNT++;
                         continue;
                     }
 
                     if (isSimpleReturnType(returnType)) {
+                        listener.onBeforeMethodInvoked(className,fullName);
                         Object o = methods[i].invoke(instance);
-
+                        listener.onAfterMethodInvoked(className,fullName);
                         String value = (o == null) ? "null" : o.toString();
 
-                        write(fullName, value);
-
+                        write(className,fullName, value);
+//TODO arrays are werid,how to handle?
 
                     } else if (returnType.isArray()){
-
+                        listener.onBeforeMethodInvoked(className,fullName);
                         Object[] o = (Object [] )methods[i].invoke(instance);
+                        listener.onAfterMethodInvoked(className,fullName);
+
                         for (int x =0; x<o.length; x++){
 
                             if (isSimpleReturnType(o[x].getClass())) {
 
                                 String value = (o[x] == null) ? "null" : o[x].toString();
 
-                                write(fullName, value);
+                                write(className,fullName, value);
 //                                Log.d(TAG, fullName + "=" + value);
 
                             } else {
+                                write(className,fullName, "<obj>");
+
                                 /*
                                 Log.d(TAG, "RECURSIVE " + o[x].getClass().getName());
                                 recurseStack.add(methodName);
@@ -202,7 +202,9 @@ public class APIScanner {
                         }
 
                     } else if (returnType == List.class) {
+                        listener.onBeforeMethodInvoked(className,fullName);
                         Object o = methods[i].invoke(instance);
+                        listener.onAfterMethodInvoked(className,fullName);
                         if (o != null) {
                             //recurse
                             for (Object lo : (List) o) {
@@ -212,10 +214,12 @@ public class APIScanner {
 
                                     String value = (o == null) ? "null" : o.toString();
 
-                                   write(fullName, value);
+                                    write(className, fullName, value);
 //                                    Log.d(TAG, fullName + "=" + value);
 
                                 } else {
+                                    write(className, fullName, "array el");
+
                                     /*
                                     Log.d(TAG, "RECURSIVE " + lo.getClass().getName());
                                     recurseStack.add(methodName);
@@ -252,6 +256,9 @@ public class APIScanner {
             } catch (RuntimeException e){
                 String message = (e.getMessage() == null)? "Error for " + clazz.getName() : e.getMessage();
 //                Log.e(TAG, message);
+            } catch (Exception e){
+                String message = (e.getMessage() == null)? "Error for " + clazz.getName() : e.getMessage();
+                Log.e(TAG, message);
             }
         }
         instance = null;
@@ -265,13 +272,16 @@ public class APIScanner {
         return spaces;
     }
 
-    private void write(String key, String value){
+    private void write(String className, String key, String value){
+        //Log.d(TAG, "Write " + className + " key " + key + " value " + value);
         fingerprints.put(key, value);
+        listener.onValueReturned(className, key, value);
     }
 
     public Hashtable<String,String> getResults(){
         return fingerprints;
     }
+
     private boolean shouldRecurse(Class clazz, Class returnType){
         boolean should = true;
         Class[] interfaces = clazz.getInterfaces();
@@ -284,9 +294,6 @@ public class APIScanner {
         return  returnType != clazz && should;
     }
 
-    private boolean shouldAcceptClass(Class clazz){
-        return !clazz.getSimpleName().equals("MediaExtractor");
-    }
     /**
      * Need to add this because some methods are very desctructive! lol
      * in particular
@@ -296,13 +303,22 @@ public class APIScanner {
     private boolean shouldAcceptMethod(String methodName){
         return methodName.startsWith("get") || methodName.startsWith("is");
     }
+
+
+    /**
+     * Get an instance of the object so the methods can be called from this object. Empty constructors
+     * or those with a Context will be considered.
+     *
+     * @param clazz
+     * @return
+     */
     private Object getInstance(Class clazz)  {
 
         Constructor[] c = clazz.getDeclaredConstructors();
         Constructor constructor = null;
         Object newInstance = null;
         try {
-            for (int i = 0; i < c.length; i++) {
+            for (int i = 0; i < c.length-1; i++) {
                 Class[] parameterTypes = c[i].getParameterTypes();
 
                 if (parameterTypes.length == 1 && parameterTypes[0].getName().equals(Context.class.getName())) {
@@ -334,7 +350,15 @@ public class APIScanner {
         return newInstance;
     }
 
-    public void processClassMembers(Class clazz){
+    public void processClassMembers(String className){
+
+        Class clazz = null;
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            return;
+        }
+
         Field[] fields = clazz.getDeclaredFields();
 
         for (int j=0; j<fields.length; j++){
@@ -343,11 +367,16 @@ public class APIScanner {
             String fieldName = fields[j].getName();
             String fullName = clazz.getName() + "." + fieldName;
 // Log.d(TAG, fullName);
-
+            if (excludes.contains(fullName)){
+                Log.w(TAG, "Skipping " + fullName + " because it crashed the app before.");
+                continue;
+            }
             try {
-
+                listener.onBeforeMethodInvoked(className,fullName);
                 Field field = clazz.getDeclaredField(fieldName);
                 field.setAccessible(true);
+                listener.onAfterMethodInvoked(className,fullName);
+
                 if (field == null) {
                     continue;
                 }
@@ -356,10 +385,11 @@ public class APIScanner {
 
                 if (isSimpleReturnType(obj.getClass())) {
 
-                    write(fullName, obj.toString());
+                    write(className, fullName, obj.toString());
 
                 } else {
                     //TODO its an object so recurse
+                    write(className, fullName, "<obj>");
                 }
 
 
@@ -437,5 +467,10 @@ public class APIScanner {
         } else {
             return false;
         }
+    }
+
+
+    public void setScanListener(ScanProgressListener listener){
+        this.listener = listener;
     }
 }

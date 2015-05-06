@@ -2,11 +2,12 @@ package edu.bu.sandboxed.model;
 
 import android.database.Cursor;
 
+import com.activeandroid.Cache;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
-import com.activeandroid.Cache;
 
 import java.util.List;
 
@@ -17,8 +18,8 @@ import java.util.List;
  *
  * Created by wil on 1/30/15.
  */
-@Table(name="APICalls")
-public class APICall extends Model{
+@Table(name="CachedAPICalls")
+public class CachedAPICall extends Model{
 
     public static final int STATUS_CRASH = 0;
     public static final int STATUS_OK = 1;
@@ -53,10 +54,10 @@ public class APICall extends Model{
     @Column(name="status" )
     public int status = STATUS_UKNOWN;
 
-    public APICall(){
+    public CachedAPICall(){
         super();
     }
-    public APICall(String className, String methodName, String value) {
+    public CachedAPICall(String className, String methodName, String value) {
         super();
        // this.packageName = packageName;
         this.className = className;
@@ -73,45 +74,27 @@ public class APICall extends Model{
     }
 
 
-    public static String getClassName(String methodName){
+    public static String getPackageName(String methodName){
         int lastDot = methodName.lastIndexOf(".");
         return methodName.substring(0, lastDot);
 
     }
-
-    public static String getPackageName(String methodName){
-        String className = getClassName(methodName);
-        int lastDot = className.lastIndexOf(".");
-        return className.substring(0, lastDot);
-    }
-
-    /**
-     * Get just the invoked name, not the full path
-     * @param methodName
-     * @return
-     */
-    public static String getSimpleInvokedName(String methodName){
+    public static String getSimpleClassName(String methodName){
         int lastDot = methodName.lastIndexOf(".");
         return methodName.substring(lastDot + 1, methodName.length());
     }
 
-    public static String getSimpleClassName(String className){
-        int lastDot = className.lastIndexOf(".");
-        return className.substring(lastDot + 1, className.length());
-    }
-
-
     public static Cursor fetchResultCursor() {
-        String tableName = Cache.getTableInfo(APICall.class).getTableName();
+        String tableName = Cache.getTableInfo(CachedAPICall.class).getTableName();
         // Query all items without any conditions
         String resultRecords = new Select(tableName + ".*, " + tableName + ".Id as _id").
-                from(APICall.class).orderBy("class, value ASC").toSql();
+                from(CachedAPICall.class).orderBy("class, value ASC").toSql();
         // Execute query on the underlying ActiveAndroid SQLite database
         Cursor resultCursor = Cache.openDatabase().rawQuery(resultRecords, null);
         return resultCursor;
     }
     public static Cursor fetchResultCursor(String filter) {
-        String tableName = Cache.getTableInfo(APICall.class).getTableName();
+        String tableName = Cache.getTableInfo(CachedAPICall.class).getTableName();
         //TODO make sure activeandroid doesnt have support for like or create pull request if it doesnt exist
         // Execute query on the underlying ActiveAndroid SQLite database
         String query = "SELECT " + tableName + ".*, " + tableName + ".Id as _id  FROM " + tableName +
@@ -122,12 +105,16 @@ public class APICall extends Model{
     }
 
     public static boolean isEmpty(){
-        return new Select().from(APICall.class).limit(1).execute().isEmpty();
+        List<CachedAPICall> cached = new Select().from(CachedAPICall.class).limit(1).execute();
+        if (cached == null){
+            return true;
+        }
+        return cached.isEmpty();
     }
 
 
-    public static APICall getLastInserted(){
-        List<APICall> apis = new Select().from(APICall.class).orderBy("Id DESC").limit(1).execute();
+    public static CachedAPICall getLastInserted(){
+        List<CachedAPICall> apis = new Select().from(CachedAPICall.class).orderBy("Id DESC").limit(1).execute();
 
         if (apis.isEmpty()) {
             return null;
@@ -136,13 +123,17 @@ public class APICall extends Model{
         }
     }
 
-    public static List<APICall> getByMethodName(String methodName){
-        return  new Select().from(APICall.class).where("method = ?", methodName).execute();
+    public static List<CachedAPICall> getByMethodName(String methodName){
+        return  new Select().from(CachedAPICall.class).where("method = ?", methodName).execute();
 
     }
 
-    public static List<APICall> getCrashableCalls(){
-        return new Select().from(APICall.class).where("status = ?", STATUS_CRASH).execute();
+    public static List<CachedAPICall> getCrashableCalls(){
+        return new Select().from(CachedAPICall.class).where("status = ?", STATUS_CRASH).execute();
+    }
+
+    public static void clear(){
+        new Delete().from(CachedAPICall.class).execute();
     }
 
 }

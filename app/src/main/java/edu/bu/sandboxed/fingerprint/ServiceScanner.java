@@ -43,8 +43,8 @@ public class ServiceScanner extends APIScanner {
              Object service = context.getSystemService(serviceName);
              Class clazz = service.getClass();
 
-             processClassMembers(clazz);
-             processMethods(clazz, service, null);
+             //processClassMembers(clazz);
+             //processMethods(clazz, service, null);
          } catch(RuntimeException e){
              if (e.getMessage() != null) {
                  Log.d("Service", e.getMessage());

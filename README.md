@@ -5,7 +5,6 @@ This project has been a response to recent environment-sensitive Android apps ch
 If the malware detects its running environment as an emulator there is a high probability it is being analyzed in a sandbox. 
 This app takes multiple different fingerprints of the environment. 
 The goal is to develope in tandumm an emulator that is indistinguishable from a real device to malware.
-This research is in collaboration with [Allan Wirth](https://github.com/allanlw), [AJ Trainor](https://github.com/lk86), [Guanchen Zhang](https://github.com/naghceuz).
 
 Features:
 --------

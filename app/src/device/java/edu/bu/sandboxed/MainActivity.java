@@ -6,6 +6,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -15,8 +16,11 @@ import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import java.lang.Override;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.bu.sandboxed.model.APICall;
+import edu.bu.sandboxed.model.FatalAPICall;
 import edu.bu.sandboxed.request.ExportRequest;
 import roboguice.activity.RoboFragmentActivity;
 
@@ -26,16 +30,20 @@ public class MainActivity extends RoboFragmentActivity implements LoadingFragmen
 
     private static final String TAG = MainActivity.class.getName();
     private static final String EXTRA_EXPORT_PATH = "EXTRA_EXPORT_PATH";
+    private static final String EXTRA_INVOKED = "EXTRA_INVOKED";
     private static final String DIALOG_TAG = "DIALOG_TAG";
+    private static final String DIALOG_FATAL_TAG = "DIALOG_FATAL_TAG";
+
     private SpiceManager spiceManager = new SpiceManager(OfflineSpiceService.class);
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
 
-            Fragment f = (APICall.isEmpty()) ? new LoadingFragment() : new FingerprintFragment();
+        if (savedInstanceState == null) {
+            APICall apiCall = APICall.getLastInserted();
+            Fragment f = (apiCall == null || apiCall.status == APICall.STATUS_UKNOWN) ? new LoadingFragment() : new FingerprintFragment();
 
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, f)
@@ -45,7 +53,7 @@ public class MainActivity extends RoboFragmentActivity implements LoadingFragmen
 
     @Override
     protected void onStart() {
-        spiceManager.start( this );
+        spiceManager.start(this);
         super.onStart();
     }
     @Override
@@ -75,12 +83,39 @@ public class MainActivity extends RoboFragmentActivity implements LoadingFragmen
             case R.id.action_export:
                 exportDatabase();
                 break;
+            case R.id.action_fatal:
+                showFatalCalls();
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void showFatalCalls(){
+        List<String> invokes = getExcludeList();
+        String invokeString = "";
+        for (String s : invokes) {
+            invokeString += s + "\n";
+        }
+
+        DialogFragment df = (DialogFragment) getFragmentManager().findFragmentByTag(DIALOG_FATAL_TAG);
+        if (df == null){
+            df = FatalDialogFragment.newInstance(invokeString);
+        }
+        df.show(getFragmentManager(), DIALOG_FATAL_TAG);
+    }
 
 
+    private List<String> getExcludeList(){
+        List<String> methods = new ArrayList<String>();
+
+        List<FatalAPICall> apiCalls = FatalAPICall.getAll();
+        if (apiCalls != null) {
+            for (FatalAPICall apiCall : apiCalls) {
+                methods.add(apiCall.methodName);
+            }
+        }
+
+        return methods;
+    }
     private void exportDatabase(){
         spiceManager.execute(new ExportRequest(getApplicationContext()), new ExportResultListener());
     }
@@ -140,6 +175,34 @@ public class MainActivity extends RoboFragmentActivity implements LoadingFragmen
                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             // FIRE ZE MISSILES!
+                        }
+                    });
+
+            // Create the AlertDialog object and return it
+            return builder.create();
+        }
+    }
+
+    public static class FatalDialogFragment extends DialogFragment {
+
+        public static DialogFragment newInstance(String invoked){
+            Bundle b = new Bundle();
+            b.putString(EXTRA_INVOKED, invoked);
+
+            DialogFragment df = new FatalDialogFragment();
+            df.setArguments(b);
+            return df;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String invoked = getArguments().getString(EXTRA_INVOKED);
+
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(invoked)
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
                         }
                     });
 

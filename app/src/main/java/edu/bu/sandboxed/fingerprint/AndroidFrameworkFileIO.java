@@ -363,7 +363,7 @@ public class AndroidFrameworkFileIO {
             while(enumeration.hasMoreElements()) {
                 String key = enumeration.nextElement();
                 String value = apis.get(key);
-                APICall call = new APICall(key, value);
+                APICall call = new APICall(APICall.getClassName(key), key, value);
                 call.save();
             }
             ActiveAndroid.setTransactionSuccessful();
@@ -417,7 +417,7 @@ public class AndroidFrameworkFileIO {
                     continue;
                 }
 
-                scanner.fullScan(line);
+                scanner.scanClass(line);
 
             }
 

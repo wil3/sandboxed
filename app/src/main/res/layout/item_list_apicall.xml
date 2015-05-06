@@ -6,50 +6,17 @@
     android:padding="10dp"
     >
 
-    <!--
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-    <TextView
-        android:id="@+id/textCall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:singleLine="true"
-        tools:text="Context.MODE_PRIVATE_MORE_STUFF_MAKES_IT_LONGER"/>
-
-    <TextView
-        android:id="@+id/textPackage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        tools:text="android.content"/>
-
-    </LinearLayout>
-
-
-    <TextView
-        android:id="@+id/textValue"
-        android:layout_width="50dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:textColor="@color/black"
-        tools:text="This is this val that is super super long"/>
-    -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <TextView
             android:id="@+id/textValue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/black"
+            android:textColor="@color/white"
             android:singleLine="true"
             tools:text="This is this val that is super super long"/>
 
@@ -58,7 +25,7 @@
             android:id="@+id/textCall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="#666666"
+            android:textColor="@color/white"
             android:singleLine="true"
             tools:text="Context.MODE_PRIVATE_MORE_STUFF_MAKES_IT_LONGER"/>
 
@@ -67,8 +34,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:textColor="#666666"
-
+            android:textColor="#AAA"
             tools:text="android.content"/>
 
 

@@ -13,6 +13,8 @@ import edu.bu.sandboxed.fingerprint.AndroidFrameworkFileIO;
 import edu.bu.sandboxed.net.C2;
 
 /**
+ * How to handle the results of the scan
+ *
  * Created by wil on 2/16/15.
  */
 public class PostScanRequest extends SpiceRequest<String> {

@@ -5,7 +5,7 @@
     <!-- To export files -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <!-- To drop on remote server -->
+    <!-- To drop on remote server  -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
@@ -63,7 +63,8 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="false">
 
 
         <!-- ActiveAndroid configuration -->
@@ -75,7 +76,7 @@
             android:value="2" />
         <meta-data
             android:name="AA_MODELS"
-            android:value="edu.bu.sandboxed.model.APICall, edu.bu.sandboxed.model.DetectionMethod, edu.bu.sandboxed.model.Param" />
+            android:value="edu.bu.sandboxed.model.APICall, edu.bu.sandboxed.model.CachedAPICall, edu.bu.sandboxed.model.FatalAPICall" />
 
 
         <meta-data

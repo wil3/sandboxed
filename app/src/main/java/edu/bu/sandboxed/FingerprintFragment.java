@@ -1,22 +1,25 @@
 package edu.bu.sandboxed;
 
+
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import java.util.List;
 
 import edu.bu.sandboxed.model.APICall;
 import roboguice.fragment.RoboFragment;
@@ -28,7 +31,9 @@ public class FingerprintFragment extends RoboFragment
 
     private static final String TAG = FingerprintFragment.class.getName();
 
-
+    private static final String EXTRA_VALUE = "EXTRA_VALUE";
+    private static final String EXTRA_INVOKED = "EXTRA_INVOKED";
+    private static final String DIALOG_TAG = "DIALOG_DETAILS";
 
     @InjectView(R.id.input_search)  private EditText filterText;
     @InjectView(R.id.list_apicalls) private ListView apiList;
@@ -67,7 +72,20 @@ public class FingerprintFragment extends RoboFragment
             }
         });
         apiList.setAdapter(adapter);
+        apiList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor cursor = (Cursor)adapter.getItem(position);
+                String methodName = cursor.getString(cursor.getColumnIndexOrThrow("method"));
+                String value = cursor.getString(cursor.getColumnIndexOrThrow("value"));
 
+                DialogFragment df = (DialogFragment) getFragmentManager().findFragmentByTag(DIALOG_TAG);
+                if (df == null){
+                    df = DetailsDialogFragment.newInstance(methodName, value);
+                }
+                df.show(getFragmentManager(), DIALOG_TAG);
+            }
+        });
         filterText.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -123,18 +141,54 @@ public class FingerprintFragment extends RoboFragment
         }
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
+            //Method or variable
             TextView tvCall = (TextView)view.findViewById(R.id.textCall);
             TextView tvValue = (TextView)view.findViewById(R.id.textValue);
-            TextView tvClassName = (TextView)view.findViewById(R.id.textPackage);
+            TextView tvPackage = (TextView)view.findViewById(R.id.textPackage);
             //TODO shoudnt activeandroid be able to extract into the model?
             //String packageName = cursor.getString(cursor.getColumnIndexOrThrow("package"));
-            String callName = cursor.getString(cursor.getColumnIndexOrThrow("class"));
+            String methodName = cursor.getString(cursor.getColumnIndexOrThrow("method"));
+            String className = cursor.getString(cursor.getColumnIndexOrThrow("class"));
+
             //String accessName = cursor.getString(cursor.getColumnIndexOrThrow("access"));
             String value = cursor.getString(cursor.getColumnIndexOrThrow("value"));
 
-            tvClassName.setText(APICall.getPackageName(callName));
-            tvCall.setText(APICall.getSimpleClassName(callName));
+            tvPackage.setText(APICall.getPackageName(methodName));
+
+            String invokedName = APICall.getSimpleClassName(className) + "." + APICall.getSimpleInvokedName(methodName);
+            tvCall.setText(invokedName);
             tvValue.setText(value);
+        }
+    }
+
+    public static class DetailsDialogFragment extends DialogFragment {
+
+        public static DialogFragment newInstance(String invoked, String value){
+            Bundle b = new Bundle();
+            b.putString(EXTRA_INVOKED, invoked);
+            b.putString(EXTRA_VALUE, value);
+
+            DialogFragment df = new DetailsDialogFragment();
+            df.setArguments(b);
+            return df;
+        }
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String invoked = getArguments().getString(EXTRA_INVOKED);
+            String value = getArguments().getString(EXTRA_VALUE);
+
+            String message = value + "\n\n" + invoked;
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setMessage(message)
+                    .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                        }
+                    });
+
+            // Create the AlertDialog object and return it
+            return builder.create();
         }
     }
 }

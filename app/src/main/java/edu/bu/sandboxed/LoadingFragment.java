@@ -26,8 +26,7 @@ import edu.bu.sandboxed.request.APIFingerprintRequest;
 import edu.bu.sandboxed.request.AndroidFrameworkClassListRequest;
 import edu.bu.sandboxed.request.PingRequest;
 import edu.bu.sandboxed.request.PostScanRequest;
-import edu.bu.sandboxed.request.ServiceFingerprintRequest;
-import edu.bu.sandboxed.request.SimpleFingerprintRequest;
+import edu.bu.sandboxed.request.SendFingerprintToRemoteServerRequest;
 import roboguice.fragment.RoboFragment;
 import roboguice.inject.InjectView;
 
@@ -132,6 +131,9 @@ public class LoadingFragment extends RoboFragment {
         }
     }
 
+    /**
+     * Results from the app first pinging the outside world
+     */
     private class PingListener implements RequestListener<String> {
         @Override
         public void onRequestFailure(SpiceException spiceException) {
@@ -149,7 +151,7 @@ public class LoadingFragment extends RoboFragment {
                     spiceManager.execute(new AndroidFrameworkClassListRequest(getActivity().getApplicationContext()),
                         new AndroidFrameworkClassListResultListener());
                 } else {
-                    spiceManagerOnline.execute(new SimpleFingerprintRequest(getActivity().getApplicationContext()), new SimpleScanResultListener());
+                    spiceManagerOnline.execute(new SendFingerprintToRemoteServerRequest(getActivity().getApplicationContext()), new SimpleScanResultListener());
                 }
             } else {
                 messageDetails.setText(R.string.message_ping_failed);
@@ -204,7 +206,7 @@ public class LoadingFragment extends RoboFragment {
         @Override
         public void onRequestSuccess(Hashtable fingerprint) {
             fingerprints.putAll(fingerprint);
-            numberTasks--;
+            numberTasks--; //This is for if things are done in parrellel
             if (numberTasks == 0){
                 spiceManager.execute(new PostScanRequest(getActivity().getApplicationContext(), fingerprints),
                         new PostScanResultListener());
@@ -214,6 +216,7 @@ public class LoadingFragment extends RoboFragment {
 
         @Override
         public void onRequestProgressUpdate(RequestProgress progress) {
+
             progressBar.setProgress(progressBar.getProgress()+1);
 
         }

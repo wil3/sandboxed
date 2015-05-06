@@ -20,4 +20,10 @@
         android:showAsAction="always"
         android:icon="@drawable/ic_action_save"
         />
+
+    <item
+        android:id="@+id/action_fatal"
+        android:title="@string/action_fatal"
+        android:showAsAction="always"
+        />
 </menu>
