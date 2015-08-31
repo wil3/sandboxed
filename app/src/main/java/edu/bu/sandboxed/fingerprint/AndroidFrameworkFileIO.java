@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -98,20 +99,21 @@ public class AndroidFrameworkFileIO {
      */
     public List<String> loadPreloadedClassList(String preloadedClassFile){
         FileInputStream fin = null;
+        BufferedReader br = null;
         try {
-            fin = context.openFileInput(preloadedClassFile);
-            preloadedClasses.addAll(IOUtils.readLines(fin));
+//            fin = context.openFileInput(preloadedClassFile);
+            br = new BufferedReader(new FileReader(preloadedClassFile));
+            preloadedClasses.addAll(IOUtils.readLines(br));
             removeComments();
         } catch(Exception e){
             e.printStackTrace();
 
         } finally {
-            if (fin != null){
+
+            if (br != null){
                 try {
-                    fin.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    br.close();
+                } catch (IOException e){}
             }
         }
 
@@ -288,6 +290,7 @@ public class AndroidFrameworkFileIO {
             final Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 final JarEntry entry = entries.nextElement();
+                Log.d(TAG, "Found jar " + entry.getName());
                 if (entry.getName().equals(jarFilename)) {
                     JarEntry fileEntry = jarFile.getJarEntry(entry.getName());
                     return processPreloadedClassFileIntoMemory(jarFile, fileEntry);

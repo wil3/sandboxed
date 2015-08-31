@@ -5,10 +5,10 @@
     <!-- To export files -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <!-- To drop on remote server  -->
+    <!-- To drop on remote server
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-
+    -->
 
     <!-- For service finger printing
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -83,15 +83,7 @@
             android:name="roboguice.annotations.packages"
             android:value="roboguice,databasename" />
 
-        <activity
-            android:name=".MainActivity"
-            android:label="@string/app_name" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <service
             android:name=".OfflineSpiceService"

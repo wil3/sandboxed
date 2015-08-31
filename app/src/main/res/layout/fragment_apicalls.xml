@@ -11,7 +11,8 @@
         <EditText android:id="@+id/input_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Filter results"
+            android:hint="@string/filter_hint"
+            android:inputType="textFilter"
             />
         <ListView
             android:id="@+id/list_apicalls"

@@ -146,9 +146,6 @@ public class APIFingerprintRequest extends SpiceRequest<Hashtable> {
                     Log.d(TAG, "Clearing the cache");
                 }
             }
-
-
-
             @Override
             public void onBeforeMethodInvoked(String className, String method) {
                 //Save to db

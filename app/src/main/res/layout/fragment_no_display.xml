@@ -13,7 +13,11 @@
 
 
 
-
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,7 +47,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
 
-        android:text=""
+        android:text="@string/message_scan_inprogress"
         tools:text="Scan written to Sandboxed.
              There are a lot of details here
              There are a lot of details here
@@ -51,6 +55,44 @@
              There are a lot of details here
              There are a lot of details here"
         />
+    </LinearLayout>
+<!--
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        >
 
+        <Button
+            android:drawableTop="@drawable/ic_action_view_as_list"
+            android:enabled="false"
 
+            android:textColor="@color/white"
+            android:background="@null"
+            android:id="@+id/btn_show"
+            android:text="@string/button_show"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:onClick="onShowResultsClick"
+            />
+
+        <Button
+            android:background="@null"
+            android:textColor="@color/white"
+            android:drawableTop="@drawable/ic_action_refresh"
+            android:id="@+id/btn_rescan"
+            android:text="@string/button_rescan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:enabled="false"
+
+            android:layout_weight="1"
+            android:onClick="onRescanClick"
+
+            />
+    </LinearLayout>-->
 </LinearLayout>

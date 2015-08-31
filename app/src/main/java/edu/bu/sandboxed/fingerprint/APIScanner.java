@@ -6,6 +6,7 @@ import android.util.Log;
 //import org.apache.log4j.Logger;
 //import org.apache.log4j.spi.LoggerFactory;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -81,7 +82,7 @@ public class APIScanner {
      */
     public void scanClass(String className){
 
-            processClassMembers(className);
+            processClassFields(className);
             processMethods(className, null,null);
 
     }
@@ -181,20 +182,23 @@ public class APIScanner {
 
                         for (int x =0; x<o.length; x++){
 
+                            String value = (o[x] == null) ? "null" : o[x].toString();
+
+                            write(className,fullName, value);
                             if (isSimpleReturnType(o[x].getClass())) {
 
-                                String value = (o[x] == null) ? "null" : o[x].toString();
+                                //String value = (o[x] == null) ? "null" : o[x].toString();
 
-                                write(className,fullName, value);
+                                //write(className,fullName, value);
 //                                Log.d(TAG, fullName + "=" + value);
 
                             } else {
-                                write(className,fullName, "<obj>");
+                               // write(className,fullName, "<obj>");
 
                                 /*
                                 Log.d(TAG, "RECURSIVE " + o[x].getClass().getName());
                                 recurseStack.add(methodName);
-                                processClassMembers( o[x].getClass());
+                                processClassFields( o[x].getClass());
                                 processMethods( o[x].getClass(),  o[x], recurseStack);
                                 */
                             }
@@ -223,7 +227,7 @@ public class APIScanner {
                                     /*
                                     Log.d(TAG, "RECURSIVE " + lo.getClass().getName());
                                     recurseStack.add(methodName);
-                                    processClassMembers(lo.getClass());
+                                    processClassFields(lo.getClass());
                                     processMethods(lo.getClass(), lo, recurseStack);
                                     */
                                 }
@@ -239,7 +243,7 @@ public class APIScanner {
                         if (o != null) {
 //                            Log.d(TAG, "RECURSIVE " + o.getClass().getName());
                             recurseStack.add(methodName);
-                            processClassMembers(o.getClass());
+                            processClassFields(o.getClass());
                             processMethods(o.getClass(), o, recurseStack);
                         }
 */
@@ -350,7 +354,7 @@ public class APIScanner {
         return newInstance;
     }
 
-    public void processClassMembers(String className){
+    public void processClassFields(String className){
 
         Class clazz = null;
         try {
@@ -382,7 +386,16 @@ public class APIScanner {
                 }
 
                 Object obj = field.get(null);
-
+                Class type = field.getType();
+                if (type.isArray()){
+                    for (int i =0; i<Array.getLength(obj); i++){
+                        write(className, fullName, Array.get(obj, i).toString());
+                    }
+                } else {
+                    // String type = obj.getClass().getName();
+                    write(className, fullName, obj.toString());
+                }
+/*
                 if (isSimpleReturnType(obj.getClass())) {
 
                     write(className, fullName, obj.toString());
@@ -391,7 +404,7 @@ public class APIScanner {
                     //TODO its an object so recurse
                     write(className, fullName, "<obj>");
                 }
-
+*/
 
             } catch (RuntimeException e){
                 String message = (e.getMessage() == null)? "Error for " + fullName : fullName + ":" + e.getMessage();

@@ -1,0 +1,5 @@
+<resources>
+    <string name="title_activity_scan">ScanActivity</string>
+    <string name="action_settings">Settings</string>
+
+</resources>

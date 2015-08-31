@@ -1,6 +1,7 @@
 package edu.bu.sandboxed.request;
 
 import android.content.Context;
+import android.os.Build;
 
 import com.octo.android.robospice.request.SpiceRequest;
 
@@ -12,6 +13,8 @@ import edu.bu.sandboxed.fingerprint.AndroidFrameworkFileIO;
 
 /**
  * Created by wil on 2/16/15.
+ *
+ * https://source.android.com/devices/tech/dalvik/configure.html#preloaded_classes_list
  */
 public class AndroidFrameworkClassListRequest extends SpiceRequest<List> {
     private final WeakReference<Context> contextReference;
@@ -29,6 +32,12 @@ public class AndroidFrameworkClassListRequest extends SpiceRequest<List> {
     @Override
     public  List<String> loadDataFromNetwork() throws Exception {
         AndroidFrameworkFileIO d = new AndroidFrameworkFileIO(contextReference.get());
-        return d.loadClassListIntoMemory(frameworkPath, preloadedClassFilename);
+
+        //This changed with ART
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return d.loadPreloadedClassList(contextReference.get().getString(R.string.path_preloaded_classes));
+        } else {
+            return d.loadClassListIntoMemory(frameworkPath, preloadedClassFilename);
+        }
     }
 }

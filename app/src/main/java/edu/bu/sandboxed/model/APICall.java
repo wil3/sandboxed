@@ -5,6 +5,7 @@ import android.database.Cursor;
 import com.activeandroid.Model;
 import com.activeandroid.annotation.Column;
 import com.activeandroid.annotation.Table;
+import com.activeandroid.query.Delete;
 import com.activeandroid.query.Select;
 import com.activeandroid.Cache;
 
@@ -144,5 +145,7 @@ public class APICall extends Model{
     public static List<APICall> getCrashableCalls(){
         return new Select().from(APICall.class).where("status = ?", STATUS_CRASH).execute();
     }
+
+
 
 }

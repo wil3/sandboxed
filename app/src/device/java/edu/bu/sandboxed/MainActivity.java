@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.activeandroid.query.Delete;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -29,6 +31,7 @@ import roboguice.activity.RoboFragmentActivity;
 public class MainActivity extends RoboFragmentActivity implements LoadingFragment.LoadCallback{
 
     private static final String TAG = MainActivity.class.getName();
+    private static final String TAG_LOAD = "FRAGMENT_LOAD";
     private static final String EXTRA_EXPORT_PATH = "EXTRA_EXPORT_PATH";
     private static final String EXTRA_INVOKED = "EXTRA_INVOKED";
     private static final String DIALOG_TAG = "DIALOG_TAG";
@@ -42,13 +45,18 @@ public class MainActivity extends RoboFragmentActivity implements LoadingFragmen
         setContentView(R.layout.activity_main);
 
         if (savedInstanceState == null) {
-            APICall apiCall = APICall.getLastInserted();
-            Fragment f = (apiCall == null || apiCall.status == APICall.STATUS_UKNOWN) ? new LoadingFragment() : new FingerprintFragment();
-
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, f)
-                    .commit();
+           checkAndScan();
         }
+    }
+
+    private void checkAndScan(){
+        APICall apiCall = APICall.getLastInserted();
+        getSupportFragmentManager().findFragmentByTag(TAG_LOAD);
+        Fragment f = (apiCall == null || apiCall.status == APICall.STATUS_UKNOWN) ? new LoadingFragment() : new FingerprintFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.container, new FingerprintFragment())
+                .commit();
     }
 
     @Override
@@ -77,14 +85,21 @@ public class MainActivity extends RoboFragmentActivity implements LoadingFragmen
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         switch(id){
-           // case R.id.action_refresh:
+            case R.id.action_refresh:
+               Intent intent =  new Intent(this, ScanActivity.class);
+                intent.putExtra(ScanActivity.EXTRA_FORCE, true);
+                        startActivity(intent);
+                finish();
            //     refreshDatabase();
-           //     break;
+                break;
             case R.id.action_export:
                 exportDatabase();
                 break;
-            case R.id.action_fatal:
-                showFatalCalls();
+           // case R.id.action_fatal:
+           //     showFatalCalls();
+           // case R.id.action_delete:
+               // new Delete().from(APICall.class).execute();
+               // checkAndScan();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -200,7 +215,8 @@ public class MainActivity extends RoboFragmentActivity implements LoadingFragmen
 
             // Use the Builder class for convenient dialog construction
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage(invoked)
+            builder.setTitle("Fatal Calls")
+                    .setMessage(invoked)
                     .setPositiveButton(R.string.button_ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                         }

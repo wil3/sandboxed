@@ -8,9 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.activeandroid.query.Delete;
 import com.octo.android.robospice.SpiceManager;
 import com.octo.android.robospice.UncachedSpiceService;
 import com.octo.android.robospice.persistence.exception.SpiceException;
@@ -22,6 +24,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import edu.bu.sandboxed.model.APICall;
+import edu.bu.sandboxed.model.CachedAPICall;
 import edu.bu.sandboxed.request.APIFingerprintRequest;
 import edu.bu.sandboxed.request.AndroidFrameworkClassListRequest;
 import edu.bu.sandboxed.request.PingRequest;
@@ -41,8 +45,8 @@ public class LoadingFragment extends RoboFragment {
         public void onLoadFailure();
     }
     private SpiceManager spiceManager = new MySpiceManager(OfflineSpiceService.class);
-    private SpiceManager spiceManagerOnline = new SpiceManager(
-            UncachedSpiceService.class);
+   // private SpiceManager spiceManagerOnline = new SpiceManager(
+   //         UncachedSpiceService.class);
 
     private long startTime;
     private final Hashtable<String, String> fingerprints = new Hashtable<String, String>();
@@ -54,6 +58,8 @@ public class LoadingFragment extends RoboFragment {
     @InjectView(R.id.progressBar) private ProgressBar progressBar;
     @InjectView(R.id.textMessageDetails) private TextView messageDetails;
 
+   // @InjectView(R.id.btn_rescan) private Button rescanButton;
+  //  @InjectView(R.id.btn_show) private Button showButton;
     public LoadingFragment() {
         // Required empty public constructor
     }
@@ -91,17 +97,25 @@ public class LoadingFragment extends RoboFragment {
         startTime = System.currentTimeMillis();
 
         spiceManager.start(getActivity());
-        spiceManagerOnline.start(getActivity());
+        //spiceManagerOnline.start(getActivity());
 
+        new Delete().from(APICall.class).execute();
+        
         String flavor = getString(R.string.flavor);
         if (flavor.equals(SandboxedApplication.FLAVOR_REMOTE)) {
-            spiceManagerOnline.execute(new PingRequest(getActivity().getApplicationContext()),
-                    new PingListener());
+ //           spiceManagerOnline.execute(new PingRequest(getActivity().getApplicationContext()),
+ //                   new PingListener());
  //           spiceManagerOnline.execute(new SimpleFingerprintRequest(getActivity().getApplicationContext()), new SimpleScanResultListener());
 
         } else {
             spiceManager.execute(new AndroidFrameworkClassListRequest(getActivity().getApplicationContext()),
                     new AndroidFrameworkClassListResultListener());
+        }
+
+        boolean hasCache = CachedAPICall.isEmpty();
+
+        if (!hasCache){
+            messageText.setText(R.string.message_resume_scan);
         }
     }
 
@@ -110,9 +124,9 @@ public class LoadingFragment extends RoboFragment {
         if (spiceManager.isStarted()) {
             spiceManager.shouldStop();
         }
-        if (spiceManagerOnline.isStarted()) {
-            spiceManagerOnline.shouldStop();
-        }
+       // if (spiceManagerOnline.isStarted()) {
+       //     spiceManagerOnline.shouldStop();
+       // }
         super.onStop();
     }
 
@@ -151,7 +165,7 @@ public class LoadingFragment extends RoboFragment {
                     spiceManager.execute(new AndroidFrameworkClassListRequest(getActivity().getApplicationContext()),
                         new AndroidFrameworkClassListResultListener());
                 } else {
-                    spiceManagerOnline.execute(new SendFingerprintToRemoteServerRequest(getActivity().getApplicationContext()), new SimpleScanResultListener());
+                    //spiceManagerOnline.execute(new SendFingerprintToRemoteServerRequest(getActivity().getApplicationContext()), new SimpleScanResultListener());
                 }
             } else {
                 messageDetails.setText(R.string.message_ping_failed);
@@ -163,10 +177,16 @@ public class LoadingFragment extends RoboFragment {
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
+            messageDetails.setText(R.string.message_fingerprint_error);
         }
 
         @Override
         public void onRequestSuccess(List classes) {
+            if (classes == null || classes.isEmpty()){
+                Log.e(TAG, "Could not obtain classes in Android framework!");
+                onRequestFailure(null);
+                return;
+            }
             Log.d(TAG, "Size " + classes.size());
             progressBar.setMax(classes.size());
             beginScan(classes);
@@ -174,6 +194,7 @@ public class LoadingFragment extends RoboFragment {
         }
 
         private void beginScan(List classes){
+
             int groups = getResources().getInteger(R.integer.num_threads);
             int size = (int) Math.ceil(((double)classes.size())/((double)groups));
             for (int i=0; i< groups; i++){
@@ -217,6 +238,7 @@ public class LoadingFragment extends RoboFragment {
         @Override
         public void onRequestProgressUpdate(RequestProgress progress) {
 
+
             progressBar.setProgress(progressBar.getProgress()+1);
 
         }
@@ -251,12 +273,16 @@ public class LoadingFragment extends RoboFragment {
             }
             messageDetails.setText(details);
 
+           // showButton.setEnabled(true);
+          //  rescanButton.setEnabled(true);
             //Allow to stay visibile for a second
             Handler handlerTimer = new Handler();
+
             handlerTimer.postDelayed(new Runnable(){
                 public void run() {
                     callback.onLoadSuccess();
                 }}, 1000);
+
         }
     }
 }
